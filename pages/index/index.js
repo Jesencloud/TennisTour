@@ -41,6 +41,11 @@ const DEFAULT_PROMPT = {
 };
 
 const CALENDAR_ALARM_OFFSET = 0;
+const TOUR_DISPLAY_ORDER = {
+  WTA: 1,
+  ATP: 2,
+  'Grand Slam': 3
+};
 
 function createDefaultPrompt() {
   return Object.assign({}, DEFAULT_PROMPT);
@@ -201,7 +206,12 @@ Page({
   },
 
   getEventsForDate(date) {
-    return tennisEvents.filter(event => this.isDateInEventRange(date, event));
+    return tennisEvents
+      .filter(event => this.isDateInEventRange(date, event))
+      .sort((a, b) => (
+        (TOUR_DISPLAY_ORDER[a.tour] || 9) - (TOUR_DISPLAY_ORDER[b.tour] || 9) ||
+        a.id - b.id
+      ));
   },
 
   getDisplayEventsForDate(date, lang = this.data.lang) {
