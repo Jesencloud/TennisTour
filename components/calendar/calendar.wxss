@@ -108,55 +108,21 @@
   color: #b8b8b8;
 }
 
-.day-item.past .event-dot {
-  background: #d1d5db;
-}
-
-.day-item.past .event-icon {
-  opacity: 0.42;
-}
-
-.event-dot {
-  width: 40rpx;
-  height: 8rpx;
-  border-radius: 999rpx;
-  background: linear-gradient(to right, #047857, #16a34a, #ca8a04, #2563eb);
-  margin-top: 8rpx;
-}
-
-.event-icons {
-  width: 96%;
-  height: 24rpx;
-  margin-top: 4rpx;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 2rpx;
-}
-
-.event-icon {
-  width: 62rpx;
-  height: 24rpx;
+.event-badge {
   display: block;
-}
-
-.event-icons-count-2 .event-icon {
-  width: 42rpx;
-  height: 18rpx;
-}
-
-.multi-badge {
-  position: absolute;
-  top: 2rpx;
-  right: 8rpx;
-  width: 24rpx;
+  width: 32rpx;
   height: 24rpx;
-  font-size: 20rpx;
+  margin-top: 2rpx;
+  font-size: 22rpx;
   line-height: 24rpx;
   text-align: center;
 }
 
-.day-item.past .multi-badge {
+.event-badge-empty {
+  visibility: hidden;
+}
+
+.day-item.past .event-badge {
   opacity: 0.42;
 }
 

@@ -47,6 +47,8 @@ const TOUR_DISPLAY_ORDER = {
   'Grand Slam': 3
 };
 const DISPLAY_LANGS = ['zh', 'en'];
+const GRAND_SLAM_DATE_BADGE = '👑';
+const EVENT_DATE_BADGE = '🎾';
 const TOUR_DISPLAY_NAMES = {
   zh: {
     ATP: 'ATP 男子',
@@ -113,51 +115,31 @@ function getEventDateRange(event) {
 }
 
 function createEventIndexes(events) {
-  const eventDateMap = {};
+  const eventDates = {};
   const eventsByDate = {};
 
   events.forEach(event => {
+    const levelMeta = getLevelMeta(event.level);
+    const isGrandSlam = levelMeta && levelMeta.key === 'grandSlam';
+
     getEventDateRange(event).forEach(date => {
       if (!eventsByDate[date]) {
         eventsByDate[date] = [];
       }
       eventsByDate[date].push(event);
 
-      const icons = getEventIcons(event);
-      if (!icons.length) return;
-
-      const levelMeta = getLevelMeta(event.level);
-      const priority = getLevelPriority(event.level, 99);
-      const isGrandSlam = levelMeta && levelMeta.key === 'grandSlam';
-      if (!eventDateMap[date]) {
-        eventDateMap[date] = [];
+      if (!eventDates[date]) {
+        eventDates[date] = {
+          hasEvent: true,
+          badge: EVENT_DATE_BADGE
+        };
       }
-      icons.forEach(icon => {
-        eventDateMap[date].push({ icon, priority, isGrandSlam });
-      });
+
+      if (isGrandSlam) {
+        eventDates[date].badge = GRAND_SLAM_DATE_BADGE;
+      }
     });
   });
-
-  const eventDates = {};
-  for (const date in eventDateMap) {
-    const list = eventDateMap[date];
-    list.sort((a, b) => a.priority - b.priority);
-
-    const uniqueIcons = [];
-    list.forEach(item => {
-      if (!uniqueIcons.includes(item.icon)) {
-        uniqueIcons.push(item.icon);
-      }
-    });
-
-    eventDates[date] = {
-      icons: uniqueIcons.slice(0, 2),
-      hasMultiple: uniqueIcons.length > 2,
-      badge: list.some(item => item.isGrandSlam)
-        ? '👑'
-      : uniqueIcons.length > 2 ? '🥎' : ''
-    };
-  }
 
   return { eventDates, eventsByDate };
 }
