@@ -35,9 +35,12 @@
             >
               <view class="day-num">{{day.day}}</view>
               <block wx:if="{{day.hasEvent}}">
-                <image wx:if="{{day.eventIcon}}" class="event-icon" src="{{day.eventIcon}}" mode="aspectFit"></image>
+                <view wx:if="{{day.eventIcons.length > 0}}" class="event-icons event-icons-count-{{day.eventIcons.length}}">
+                  <image wx:for="{{day.eventIcons}}" wx:key="*this" wx:for-item="icon" class="event-icon" src="{{icon}}" mode="aspectFit"></image>
+                </view>
                 <view wx:else class="event-dot"></view>
               </block>
+              <text wx:if="{{day.eventBadge}}" class="multi-badge">{{day.eventBadge}}</text>
             </view>
           </block>
         </view>

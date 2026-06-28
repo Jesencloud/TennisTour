@@ -41,16 +41,23 @@
           bindtap="onEventTap"
         >
           <text wx:if="{{selectedEvents.length > 1}}" class="row-number" user-select="{{true}}">{{index + 1}}.</text>
-          <text class="row-flag" user-select="{{true}}">{{item.flag}}</text>
           <view class="row-main">
             <view class="row-title-line">
               <text class="row-name" user-select="{{true}}">{{item.eventName}}</text>
             </view>
             <view class="row-meta">
-              <text class="row-badge tour-badge" user-select="{{true}}">{{item.tourDisplay}}</text>
-              <text class="row-badge" user-select="{{true}}">{{item.levelDisplay}}</text>
+              <block wx:if="{{item.icons.length > 0}}">
+                <view class="meta-icons">
+                  <image wx:for="{{item.icons}}" wx:key="*this" wx:for-item="icon" class="meta-icon" src="{{icon}}" mode="aspectFit"></image>
+                </view>
+                <text class="row-badge tour-level-badge {{item.tour === 'ATP' ? 'tour-level-badge-atp' : 'tour-level-badge-wta'}}" user-select="{{true}}">{{item.tourLevelDisplay}}</text>
+              </block>
+              <block wx:else>
+                <text class="row-badge tour-badge" user-select="{{true}}">{{item.tourDisplay}}</text>
+                <text class="row-badge" user-select="{{true}}">{{item.levelDisplay}}</text>
+              </block>
               <text class="row-badge surface-badge" user-select="{{true}}">{{item.surfaceDisplay}}</text>
-              <text class="row-location" user-select="{{true}}">{{lang === 'zh' ? item.locationCn : item.location}}</text>
+              <text class="row-location" user-select="{{true}}">{{lang === 'zh' ? item.locationCn : item.location}} {{item.flag}}</text>
             </view>
           </view>
         </view>
@@ -71,7 +78,6 @@
       <view wx:if="{{prompt.eventName}}" class="prompt-divider"></view>
 
       <view wx:if="{{prompt.eventName}}" class="prompt-event">
-        <text wx:if="{{prompt.flag}}" class="prompt-event-flag" user-select="{{true}}">{{prompt.flag}}</text>
         <text user-select="{{true}}">{{prompt.eventName}}</text>
       </view>
 

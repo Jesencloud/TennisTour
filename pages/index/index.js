@@ -1,26 +1,12 @@
 // pages/index/index.js
-const { tennisEvents, levelOrder } = require('../../data/tennis_events.js');
+const { tennisEvents } = require('../../data/tennis_events.js');
 const { t } = require('../../utils/i18n.js');
-
-const ATP_LEVEL_ICONS = {
-  'Masters 1000': '/assets/icons/categorystamps_1000.png',
-  '500': '/assets/icons/categorystamps_500.png',
-  '250': '/assets/icons/categorystamps_250.png'
-};
-
-const WTA_LEVEL_ICONS = {
-  '1000': '/assets/icons/1000k-tag.svg',
-  '500': '/assets/icons/500k-tag.svg',
-  '250': '/assets/icons/250k-tag.svg'
-};
-
-function getEventIcon(event) {
-  if (event.tour === 'Grand Slam') return '/assets/icons/categorystamps_grandslam.png';
-  if (event.level === '年终总决赛') return '/assets/icons/finals-tag.svg';
-  if (event.tour === 'ATP') return ATP_LEVEL_ICONS[event.level] || '';
-  if (event.tour === 'WTA') return WTA_LEVEL_ICONS[event.level] || '';
-  return '';
-}
+const {
+  getEventIcons,
+  getLevelDisplay: getLevelLabel,
+  getLevelMeta,
+  getLevelPriority
+} = require('../../utils/levels.js');
 
 const PAGE_TEXT_KEYS = [
   'title',
@@ -36,6 +22,30 @@ const PAGE_TEXT_KEYS = [
   'labelLocation'
 ];
 
+const DEFAULT_PROMPT = {
+  visible: false,
+  type: '',
+  title: '',
+  subtitle: '',
+  eventName: '',
+  eventDates: '',
+  tour: '',
+  level: '',
+  surface: '',
+  location: '',
+  message: '',
+  confirmText: '',
+  cancelText: '',
+  showCancel: true,
+  eventId: null
+};
+
+const CALENDAR_ALARM_OFFSET = 0;
+
+function createDefaultPrompt() {
+  return Object.assign({}, DEFAULT_PROMPT);
+}
+
 function getText(lang) {
   return PAGE_TEXT_KEYS.reduce((text, key) => {
     text[key] = t(key, lang);
@@ -43,10 +53,16 @@ function getText(lang) {
   }, {});
 }
 
-function parseDateValue(date) {
+function parseDateParts(date) {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return null;
   const [year, month, day] = date.split('-').map(Number);
-  return new Date(Date.UTC(year, month - 1, day));
+  return { year, month, day };
+}
+
+function parseDateValue(date) {
+  const parts = parseDateParts(date);
+  if (!parts) return null;
+  return new Date(Date.UTC(parts.year, parts.month - 1, parts.day));
 }
 
 function formatDateValue(date) {
@@ -63,9 +79,7 @@ function getEventDateRange(event) {
 
   const dates = [];
   for (let d = startDate.getTime(); d <= endDate.getTime(); d += 86400000) {
-    dates.push({
-      date: formatDateValue(new Date(d))
-    });
+    dates.push(formatDateValue(new Date(d)));
   }
   return dates;
 }
@@ -73,23 +87,43 @@ function getEventDateRange(event) {
 function createEventDates(events) {
   const eventDateMap = {};
   events.forEach(event => {
-    getEventDateRange(event).forEach(obj => {
-      const marker = {
-        icon: getEventIcon(event),
-        priority: levelOrder[event.level] || 99
-      };
-      const existingMarker = eventDateMap[obj.date];
-      if (!existingMarker) {
-        eventDateMap[obj.date] = marker;
-        return;
-      }
+    getEventDateRange(event).forEach(date => {
+      const icons = getEventIcons(event);
+      if (!icons.length) return;
 
-      if (marker.priority < existingMarker.priority) {
-        eventDateMap[obj.date] = marker;
+      const levelMeta = getLevelMeta(event.level);
+      const priority = getLevelPriority(event.level, 99);
+      const isGrandSlam = levelMeta && levelMeta.key === 'grandSlam';
+      if (!eventDateMap[date]) {
+        eventDateMap[date] = [];
       }
+      icons.forEach(icon => {
+        eventDateMap[date].push({ icon, priority, isGrandSlam });
+      });
     });
   });
-  return eventDateMap;
+
+  const finalMap = {};
+  for (const date in eventDateMap) {
+    const list = eventDateMap[date];
+    list.sort((a, b) => a.priority - b.priority);
+
+    const uniqueIcons = [];
+    list.forEach(item => {
+      if (!uniqueIcons.includes(item.icon)) {
+        uniqueIcons.push(item.icon);
+      }
+    });
+
+    finalMap[date] = {
+      icons: uniqueIcons.slice(0, 2),
+      hasMultiple: uniqueIcons.length > 2,
+      badge: list.some(item => item.isGrandSlam)
+        ? '👑'
+        : uniqueIcons.length > 2 ? '🥎' : ''
+    };
+  }
+  return finalMap;
 }
 
 const eventDates = createEventDates(tennisEvents);
@@ -106,24 +140,7 @@ Page({
     showTodayButton: false,
     lang: 'zh',
     text: getText('zh'),
-    prompt: {
-      visible: false,
-      type: '',
-      title: '',
-      subtitle: '',
-      eventName: '',
-      eventDates: '',
-      flag: '',
-      tour: '',
-      level: '',
-      surface: '',
-      location: '',
-      message: '',
-      confirmText: '',
-      cancelText: '',
-      showCancel: true,
-      eventId: null
-    }
+    prompt: createDefaultPrompt()
   },
 
   onLoad() {
@@ -191,7 +208,9 @@ Page({
     return this.getEventsForDate(date).map(event => Object.assign({}, event, {
       tourDisplay: this.getTourDisplay(event, lang),
       levelDisplay: this.getLevelDisplay(event, lang),
-      surfaceDisplay: this.getSurfaceDisplay(event, lang)
+      tourLevelDisplay: this.getTourLevelDisplay(event, lang),
+      surfaceDisplay: this.getSurfaceDisplay(event, lang),
+      icons: getEventIcons(event)
     }));
   },
 
@@ -233,33 +252,17 @@ Page({
     return this.formatDisplayDate(rawDates);
   },
 
-  getCalendarEventRange(event) {
-    return {
-      startDate: event.startDate,
-      endDate: event.endDate
-    };
-  },
-
-  getCalendarAlarmOffset() {
-    return 0;
-  },
-
-  getCalendarTimestamp(date, endOfDay = false) {
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return null;
-
-    const [year, month, day] = date.split('-').map(Number);
-    const calendarDate = endOfDay
-      ? new Date(year, month - 1, day, 23, 59, 59)
-      : new Date(year, month - 1, day, 0, 0, 0);
-
+  getCalendarTimestamp(date) {
+    const parts = parseDateParts(date);
+    if (!parts) return null;
+    const calendarDate = new Date(parts.year, parts.month - 1, parts.day, 0, 0, 0);
     return Math.floor(calendarDate.getTime() / 1000);
   },
 
   getCalendarAllDayEndTimestamp(date) {
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return null;
-
-    const [year, month, day] = date.split('-').map(Number);
-    const nextDay = new Date(year, month - 1, day + 1, 0, 0, 0);
+    const parts = parseDateParts(date);
+    if (!parts) return null;
+    const nextDay = new Date(parts.year, parts.month - 1, parts.day + 1, 0, 0, 0);
     return Math.floor(nextDay.getTime() / 1000);
   },
 
@@ -272,7 +275,7 @@ Page({
   },
 
   getFlaggedEventLocation(event) {
-    return `${event.flag} ${this.getEventLocation(event)}`;
+    return `${this.getEventLocation(event)} ${event.flag}`;
   },
 
   getTourDisplay(event, lang = this.data.lang) {
@@ -293,26 +296,24 @@ Page({
   },
 
   getLevelDisplay(event, lang = this.data.lang) {
-    const levelNames = {
+    return getLevelLabel(event.level, lang);
+  },
+
+  getTourLevelDisplay(event, lang = this.data.lang) {
+    const level = this.getLevelDisplay(event, lang);
+    const tourNames = {
       zh: {
-        '大满贯': '大满贯',
-        '年终总决赛': '年终总决赛',
-        'Masters 1000': 'Masters 1000',
-        '1000': '1000',
-        '500': '500',
-        '250': '250'
+        ATP: '男子',
+        WTA: '女子'
       },
       en: {
-        '大满贯': 'Grand Slam',
-        '年终总决赛': 'Finals',
-        'Masters 1000': 'Masters 1000',
-        '1000': '1000',
-        '500': '500',
-        '250': '250'
+        ATP: 'MEN',
+        WTA: 'WOMEN'
       }
     };
-    const names = levelNames[lang] || levelNames.zh;
-    return names[event.level] || event.level;
+    const names = tourNames[lang] || tourNames.zh;
+    const tour = names[event.tour];
+    return tour ? `${tour} ${level}` : level;
   },
 
   getSurfaceDisplay(event, lang = this.data.lang) {
@@ -381,7 +382,6 @@ Page({
       subtitle: t('calendarDisclaimer', lang),
       eventName: event.eventName,
       eventDates: this.formatEventDates(event),
-      flag: event.flag,
       tour: this.getTourDisplay(event),
       level: this.getLevelDisplay(event),
       surface: this.getSurfaceDisplay(event),
@@ -395,10 +395,8 @@ Page({
 
   addEventToPhoneCalendar(event) {
     const lang = this.data.lang;
-    const { startDate, endDate } = this.getCalendarEventRange(event);
-    const startTime = this.getCalendarTimestamp(startDate);
-    const endTime = this.getCalendarAllDayEndTimestamp(endDate);
-    const alarmOffset = this.getCalendarAlarmOffset(startDate);
+    const startTime = this.getCalendarTimestamp(event.startDate);
+    const endTime = this.getCalendarAllDayEndTimestamp(event.endDate);
 
     if (!startTime || !endTime || endTime < startTime) {
       wx.showToast({
@@ -415,7 +413,7 @@ Page({
       allDay: true,
       location: this.getEventLocation(event),
       description: this.getCalendarDescription(event),
-      alarmOffset,
+      alarmOffset: CALENDAR_ALARM_OFFSET,
       success: () => {
         wx.vibrateShort({ type: 'medium', fail: () => {} });
         wx.showToast({
@@ -434,37 +432,15 @@ Page({
     });
   },
 
-  getDefaultPrompt() {
-    return {
-      visible: false,
-      type: '',
-      title: '',
-      subtitle: '',
-      eventName: '',
-      eventDates: '',
-      flag: '',
-      tour: '',
-      level: '',
-      surface: '',
-      location: '',
-      message: '',
-      confirmText: '',
-      cancelText: '',
-      showCancel: true,
-      eventId: null
-    };
-  },
-
   openPrompt(prompt) {
-    const defaultPrompt = this.getDefaultPrompt();
     this.setData({
-      prompt: Object.assign({}, defaultPrompt, prompt, { visible: true })
+      prompt: Object.assign(createDefaultPrompt(), prompt, { visible: true })
     });
   },
 
   closePrompt() {
     this.setData({
-      prompt: this.getDefaultPrompt()
+      prompt: createDefaultPrompt()
     });
   },
 

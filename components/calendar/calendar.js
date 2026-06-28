@@ -73,13 +73,15 @@ Component({
       if (!marker) {
         return {
           hasEvent: false,
-          eventIcon: ''
+          eventIcons: [],
+          eventBadge: ''
         };
       }
 
       return {
-        hasEvent: true,
-        eventIcon: marker.icon || ''
+        hasEvent: marker.icons && marker.icons.length > 0,
+        eventIcons: marker.icons || [],
+        eventBadge: marker.badge || (marker.hasMultiple ? '🥎' : '')
       };
     },
 
@@ -134,7 +136,8 @@ Component({
           fullDate: fullDate,
           dateKey: fullDate,
           hasEvent: eventMarker.hasEvent,
-          eventIcon: eventMarker.eventIcon,
+          eventIcons: eventMarker.eventIcons,
+          eventBadge: eventMarker.eventBadge,
           isPast: fullDate < todayDate
         });
       }

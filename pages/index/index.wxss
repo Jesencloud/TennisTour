@@ -170,6 +170,19 @@
   margin-top: 10rpx;
 }
 
+.meta-icons {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8rpx;
+}
+
+.meta-icon {
+  width: 72rpx;
+  height: 32rpx;
+  flex-shrink: 0;
+}
+
 .row-badge {
   padding: 4rpx 10rpx;
   border-radius: 8rpx;
@@ -184,6 +197,20 @@
   background: #e0f2fe;
   color: #0369a1;
   font-weight: 600;
+}
+
+.tour-level-badge {
+  font-weight: 600;
+}
+
+.tour-level-badge-atp {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.tour-level-badge-wta {
+  background: #f3e8ff;
+  color: #7e22ce;
 }
 
 .surface-badge {
