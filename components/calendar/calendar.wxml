@@ -1,0 +1,79 @@
+<!-- components/calendar/calendar.wxml -->
+<view class="calendar-container">
+  <view class="calendar-header">
+    <view class="nav-btn" bindtap="prevMonth">❮</view>
+    <view class="current-month" hover-class="current-month-hover" bindtap="openMonthPicker">{{monthNames[currentMonth]}} {{currentYear}}</view>
+    <view class="nav-btn" bindtap="nextMonth">❯</view>
+  </view>
+
+  <view class="weekday-header">
+    <block wx:for="{{weekdays}}" wx:key="*this">
+      <view class="weekday-item">{{item}}</view>
+    </block>
+  </view>
+
+  <view
+    class="calendar-days-viewport"
+    bindtouchstart="onCalendarTouchStart"
+    bindtouchmove="onCalendarTouchMove"
+    bindtouchend="onCalendarTouchEnd"
+    bindtouchcancel="onCalendarTouchCancel"
+  >
+    <view
+      class="calendar-days-track"
+      style="transform: translate3d({{swipeOffset}}, 0, 0); transition: {{swipeTransition}};"
+    >
+      <block wx:for="{{monthPanels}}" wx:key="key" wx:for-item="panel">
+        <view class="days-grid month-panel">
+          <block wx:for="{{panel.days}}" wx:key="dateKey" wx:for-item="day">
+            <view
+              class="day-item {{day.fullDate === selectedDate ? 'selected' : ''}} {{day.isPast ? 'past' : ''}} {{!day.day ? 'empty' : ''}}"
+              hover-class="{{!day.day ? 'none' : 'day-item-hover'}}"
+              hover-stay-time="100"
+              bindtap="selectDay"
+              data-date="{{day.fullDate}}"
+            >
+              <view class="day-num">{{day.day}}</view>
+              <block wx:if="{{day.hasEvent}}">
+                <image wx:if="{{day.eventIcon}}" class="event-icon" src="{{day.eventIcon}}" mode="aspectFit"></image>
+                <view wx:else class="event-dot"></view>
+              </block>
+            </view>
+          </block>
+        </view>
+      </block>
+    </view>
+  </view>
+
+  <view wx:if="{{showMonthPicker}}" class="month-picker-mask" bindtap="closeMonthPicker">
+    <view class="month-picker-panel" catchtap="stopMonthPickerTap">
+      <view class="month-picker-header">
+        <view
+          class="year-option {{baseYear === pickerYear ? 'active' : ''}}"
+          data-year="{{baseYear}}"
+          bindtap="selectPickerYear"
+        >
+          <text>{{baseYear}}</text>
+        </view>
+        <view
+          class="year-option {{baseYear + 1 === pickerYear ? 'active' : ''}}"
+          data-year="{{baseYear + 1}}"
+          bindtap="selectPickerYear"
+        >
+          <text>{{baseYear + 1}}</text>
+        </view>
+      </view>
+      <view class="month-grid">
+        <block wx:for="{{monthNames}}" wx:key="*this">
+          <view
+            class="month-option {{index === currentMonth && pickerYear === currentYear ? 'active' : ''}}"
+            data-month="{{index}}"
+            bindtap="selectMonth"
+          >
+            <text>{{item}}</text>
+          </view>
+        </block>
+      </view>
+    </view>
+  </view>
+</view>

@@ -1,0 +1,128 @@
+<!--pages/index/index.wxml-->
+<view class="container">
+  <view class="header">
+    <view class="header-main">
+      <view>
+        <text class="title">{{text.title}}</text>
+        <text class="subtitle">{{text.subtitle}}</text>
+      </view>
+      <view class="lang-toggle" hover-class="lang-toggle-hover" hover-stay-time="100" bindtap="toggleLang">
+        <text>{{text.langToggle}}</text>
+      </view>
+    </view>
+  </view>
+
+  <calendar
+    id="calendar"
+    eventDates="{{eventDates}}" 
+    lang="{{lang}}"
+    bind:selectdate="onDateSelect"
+  />
+
+  <view class="event-section">
+    <view class="section-header">
+      <view class="section-title">
+        <text>{{selectedDate}} {{text.events}}</text>
+      </view>
+      <view wx:if="{{showTodayButton}}" class="today-btn" hover-class="today-btn-hover" hover-stay-time="100" bindtap="goToday">
+        <text>{{text.today}}</text>
+      </view>
+    </view>
+    
+    <view wx:if="{{selectedEvents.length > 0}}" class="event-list">
+      <block wx:for="{{selectedEvents}}" wx:key="id">
+        <view
+          class="event-row"
+          hover-class="event-row-hover"
+          data-id="{{item.id}}"
+          bindtouchstart="onEventTouchStart"
+          bindtouchend="onEventTouchEnd"
+          bindtouchcancel="onEventTouchCancel"
+          bindtap="onEventTap"
+        >
+          <text wx:if="{{selectedEvents.length > 1}}" class="row-number" user-select="{{true}}">{{index + 1}}.</text>
+          <text class="row-flag" user-select="{{true}}">{{item.flag}}</text>
+          <view class="row-main">
+            <view class="row-title-line">
+              <text class="row-name" user-select="{{true}}">{{item.eventName}}</text>
+            </view>
+            <view class="row-meta">
+              <text class="row-badge tour-badge" user-select="{{true}}">{{item.tourDisplay}}</text>
+              <text class="row-badge" user-select="{{true}}">{{item.levelDisplay}}</text>
+              <text class="row-badge surface-badge" user-select="{{true}}">{{item.surfaceDisplay}}</text>
+              <text class="row-location" user-select="{{true}}">{{lang === 'zh' ? item.locationCn : item.location}}</text>
+            </view>
+          </view>
+        </view>
+      </block>
+    </view>
+    
+    <view wx:else class="no-events">
+      <text>{{text.noEvents}}</text>
+    </view>
+  </view>
+
+  <view wx:if="{{prompt.visible}}" class="prompt-mask" bindtap="closePrompt">
+    <view class="prompt-panel" catchtap="stopPromptTap">
+      <view class="prompt-accent"></view>
+      <text class="prompt-title">{{prompt.title}}</text>
+      <text class="prompt-subtitle">{{prompt.subtitle}}</text>
+
+      <view wx:if="{{prompt.eventName}}" class="prompt-divider"></view>
+
+      <view wx:if="{{prompt.eventName}}" class="prompt-event">
+        <text wx:if="{{prompt.flag}}" class="prompt-event-flag" user-select="{{true}}">{{prompt.flag}}</text>
+        <text user-select="{{true}}">{{prompt.eventName}}</text>
+      </view>
+
+      <view wx:if="{{prompt.eventDates || prompt.tour || prompt.level || prompt.surface || prompt.location}}" class="prompt-detail-list">
+        <view wx:if="{{prompt.eventDates}}" class="prompt-detail-row">
+          <text class="prompt-detail-label" user-select="{{true}}">{{text.labelEventDates}}{{lang === 'zh' ? '：' : ': '}}</text>
+          <text class="prompt-detail-value" user-select="{{true}}">{{prompt.eventDates}}</text>
+        </view>
+
+        <view wx:if="{{prompt.tour}}" class="prompt-detail-row">
+          <text class="prompt-detail-label" user-select="{{true}}">{{text.labelTour}}{{lang === 'zh' ? '：' : ': '}}</text>
+          <text class="prompt-detail-value" user-select="{{true}}">{{prompt.tour}}</text>
+        </view>
+
+        <view wx:if="{{prompt.level}}" class="prompt-detail-row">
+          <text class="prompt-detail-label" user-select="{{true}}">{{text.labelLevel}}{{lang === 'zh' ? '：' : ': '}}</text>
+          <text class="prompt-detail-value" user-select="{{true}}">{{prompt.level}}</text>
+        </view>
+
+        <view wx:if="{{prompt.surface}}" class="prompt-detail-row">
+          <text class="prompt-detail-label" user-select="{{true}}">{{text.labelSurface}}{{lang === 'zh' ? '：' : ': '}}</text>
+          <text class="prompt-detail-value" user-select="{{true}}">{{prompt.surface}}</text>
+        </view>
+
+        <view wx:if="{{prompt.location}}" class="prompt-detail-row">
+          <text class="prompt-detail-label" user-select="{{true}}">{{text.labelLocation}}{{lang === 'zh' ? '：' : ': '}}</text>
+          <text class="prompt-detail-value" user-select="{{true}}">{{prompt.location}}</text>
+        </view>
+
+      </view>
+
+      <text wx:if="{{prompt.message}}" class="prompt-message" user-select="{{true}}">{{prompt.message}}</text>
+
+      <view class="prompt-actions">
+        <button
+          wx:if="{{prompt.showCancel}}"
+          class="prompt-btn prompt-btn-secondary"
+          hover-class="prompt-btn-hover"
+          bindtap="closePrompt"
+        >
+          {{prompt.cancelText}}
+        </button>
+        <button
+          class="prompt-btn prompt-btn-primary"
+          hover-class="prompt-btn-primary-hover"
+          bindtap="confirmPrompt"
+        >
+          {{prompt.confirmText}}
+        </button>
+      </view>
+    </view>
+  </view>
+
+</view>

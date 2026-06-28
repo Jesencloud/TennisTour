@@ -1,0 +1,6 @@
+{
+  "usingComponents": {
+    "calendar": "/components/calendar/calendar"
+  },
+  "navigationBarTitleText": "网球赛程日历"
+}
