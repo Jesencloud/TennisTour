@@ -1,6 +1,9 @@
 // components/calendar/calendar.js
 const { t } = require('../../utils/i18n.js');
 
+const SWIPER_CENTER_INDEX = 1;
+const SWIPER_DURATION_MS = 220;
+
 function getCalendarText(lang) {
   return {
     weekdays: t('weekdays', lang),
@@ -9,13 +12,7 @@ function getCalendarText(lang) {
 }
 
 Component({
-  calendarTouchStartX: null,
-  calendarTouchStartY: null,
-  calendarTouchLastOffset: 0,
-  calendarDidDrag: false,
   calendarSwipeAnimating: false,
-  calendarSuppressTapUntil: 0,
-  calendarSwipeTimer: null,
 
   properties: {
     eventDates: {
@@ -36,8 +33,8 @@ Component({
     showMonthPicker: false,
     baseYear: 0,
     pickerYear: 0,
-    swipeOffset: '0px',
-    swipeTransition: 'none',
+    swiperCurrent: SWIPER_CENTER_INDEX,
+    swiperDuration: SWIPER_DURATION_MS,
     weekdays: [],
     monthNames: []
   },
@@ -61,10 +58,6 @@ Component({
         monthNames: locale.months,
         ...calendarState
       });
-    },
-
-    detached() {
-      clearTimeout(this.calendarSwipeTimer);
     }
   },
 
@@ -122,9 +115,14 @@ Component({
       
       const days = [];
       
-      // Fill empty slots for previous month
+      // Keep every month at 6 rows so swiping never changes the calendar height.
       for (let i = 0; i < firstDay; i++) {
-        days.push({ day: '', fullDate: '', dateKey: `empty-${i}`, hasEvent: false });
+        days.push({
+          day: '',
+          fullDate: '',
+          dateKey: `empty-before-${year}-${month}-${i}`,
+          hasEvent: false
+        });
       }
       
       // Fill current month days
@@ -141,7 +139,7 @@ Component({
           isPast: fullDate < todayDate
         });
       }
-      
+
       return days;
     },
 
@@ -178,10 +176,11 @@ Component({
       this.setData({
         currentYear: parsedDate.year,
         currentMonth: parsedDate.month,
-        selectedDate: date
-      }, () => {
-        this.generateCalendar();
-      });
+        selectedDate: date,
+        swiperCurrent: SWIPER_CENTER_INDEX,
+        swiperDuration: 0,
+        ...this.getCalendarState(parsedDate.year, parsedDate.month)
+      }, () => this.restoreSwiperDuration());
     },
 
     openMonthPicker() {
@@ -210,120 +209,31 @@ Component({
       this.setData({ pickerYear: year });
     },
 
-    onCalendarTouchStart(e) {
+    onCalendarSwiperFinish(e) {
+      const current = e.detail && typeof e.detail.current === 'number'
+        ? e.detail.current
+        : SWIPER_CENTER_INDEX;
+
+      if (current === SWIPER_CENTER_INDEX) return;
+
+      const offset = current > SWIPER_CENTER_INDEX ? 1 : -1;
+      this.calendarSwipeAnimating = true;
+      this.changeMonth(offset, { autoSelectDate: true, resetSwiper: true });
+    },
+
+    restoreSwiperDuration() {
+      if (this.data.swiperDuration === SWIPER_DURATION_MS) return;
+      this.setData({ swiperDuration: SWIPER_DURATION_MS });
+    },
+
+    slideMonth(offset) {
       if (this.calendarSwipeAnimating) return;
 
-      const touch = e.touches && e.touches[0];
-      if (!touch) return;
-
-      clearTimeout(this.calendarSwipeTimer);
-      this.calendarTouchStartX = touch.clientX;
-      this.calendarTouchStartY = touch.clientY;
-      this.calendarTouchLastOffset = 0;
-      this.calendarDidDrag = false;
-      this.calendarSuppressTapUntil = 0;
-      this._lastTouchMoveTime = 0;
-      this.setData({ swipeTransition: 'none' });
-    },
-
-    onCalendarTouchMove(e) {
-      if (this.calendarSwipeAnimating || this.data.showMonthPicker) return;
-
-      const touch = e.touches && e.touches[0];
-      if (!touch || this.calendarTouchStartX === null || this.calendarTouchStartY === null) return;
-
-      const deltaX = touch.clientX - this.calendarTouchStartX;
-      const deltaY = touch.clientY - this.calendarTouchStartY;
-      const isHorizontalDrag = Math.abs(deltaX) > 8 && Math.abs(deltaX) > Math.abs(deltaY);
-      if (!isHorizontalDrag) return;
-
-      // Throttle: restrict setData to at most once per 30ms to prevent lag
-      const now = Date.now();
-      if (this._lastTouchMoveTime && now - this._lastTouchMoveTime < 30) {
-        return;
-      }
-
-      if (Math.abs(deltaX - this.calendarTouchLastOffset) < 3) return;
-
-      this._lastTouchMoveTime = now;
-      this.calendarTouchLastOffset = deltaX;
-      this.calendarDidDrag = true;
-      this.setData({ swipeOffset: `${deltaX}px`, swipeTransition: 'none' });
-    },
-
-    onCalendarTouchEnd(e) {
-      const touch = e.changedTouches && e.changedTouches[0];
-      if (
-        !touch ||
-        this.data.showMonthPicker ||
-        this.calendarSwipeAnimating ||
-        this.calendarTouchStartX === null ||
-        this.calendarTouchStartY === null
-      ) {
-        this.resetCalendarTouch();
-        return;
-      }
-
-      const deltaX = touch.clientX - this.calendarTouchStartX;
-      const deltaY = touch.clientY - this.calendarTouchStartY;
-      const isHorizontalSwipe = Math.abs(deltaX) >= 50 && Math.abs(deltaX) > Math.abs(deltaY) * 1.5;
-      const didDrag = this.calendarDidDrag;
-
-      this.resetCalendarTouch();
-      if (didDrag) {
-        this.calendarSuppressTapUntil = e.timeStamp + 120;
-      }
-
-      if (!isHorizontalSwipe) {
-        this.resetSwipePosition(true);
-        return;
-      }
-
-      if (deltaX < 0) {
-        this.animateMonthChange(1);
-      } else {
-        this.animateMonthChange(-1);
-      }
-    },
-
-    onCalendarTouchCancel() {
-      this.resetCalendarTouch();
-      this.resetSwipePosition(true);
-    },
-
-    resetCalendarTouch() {
-      this.calendarTouchStartX = null;
-      this.calendarTouchStartY = null;
-      this.calendarTouchLastOffset = 0;
-      this.calendarDidDrag = false;
-    },
-
-    resetSwipePosition(animated = false) {
-      this.setData({
-        swipeOffset: '0px',
-        swipeTransition: animated ? 'transform 160ms ease-out' : 'none'
-      });
-
-      if (animated) {
-        clearTimeout(this.calendarSwipeTimer);
-        this.calendarSwipeTimer = setTimeout(() => {
-          this.setData({ swipeTransition: 'none' });
-        }, 160);
-      }
-    },
-
-    animateMonthChange(offset) {
       this.calendarSwipeAnimating = true;
       this.setData({
-        swipeOffset: offset > 0 ? '-33.3333%' : '33.3333%',
-        swipeTransition: 'transform 180ms ease-out'
+        swiperCurrent: offset > 0 ? SWIPER_CENTER_INDEX + 1 : SWIPER_CENTER_INDEX - 1,
+        swiperDuration: SWIPER_DURATION_MS
       });
-
-      clearTimeout(this.calendarSwipeTimer);
-      this.calendarSwipeTimer = setTimeout(() => {
-        this.changeMonth(offset, { autoSelectDate: true, resetSwipe: true });
-        this.calendarSwipeAnimating = false;
-      }, 180);
     },
 
     getAutoSelectedDate(year, month) {
@@ -354,8 +264,12 @@ Component({
         currentYear,
         selectedDate,
         showMonthPicker: false,
+        swiperCurrent: SWIPER_CENTER_INDEX,
+        swiperDuration: 0,
         ...this.getCalendarState(currentYear, month)
       }, () => {
+        this.calendarSwipeAnimating = false;
+        this.restoreSwiperDuration();
         this.triggerEvent('selectdate', { date: selectedDate });
       });
     },
@@ -379,34 +293,37 @@ Component({
         ...this.getCalendarState(currentYear, currentMonth)
       };
 
-      if (options.resetSwipe) {
-        nextData.swipeOffset = '0px';
-        nextData.swipeTransition = 'none';
+      if (options.resetSwiper) {
+        nextData.swiperCurrent = SWIPER_CENTER_INDEX;
+        nextData.swiperDuration = 0;
       }
 
       this.setData(nextData, () => {
-        if (options.autoSelectDate) {
-          this.triggerEvent('selectdate', { date: selectedDate });
+        const finishChange = () => {
+          this.calendarSwipeAnimating = false;
+          if (options.autoSelectDate) {
+            this.triggerEvent('selectdate', { date: selectedDate });
+          }
+        };
+
+        if (options.resetSwiper) {
+          this.setData({ swiperDuration: SWIPER_DURATION_MS }, finishChange);
+          return;
         }
+
+        finishChange();
       });
     },
 
     prevMonth() {
-      if (this.calendarSwipeAnimating) return;
-      this.changeMonth(-1, { autoSelectDate: true });
+      this.slideMonth(-1);
     },
 
     nextMonth() {
-      if (this.calendarSwipeAnimating) return;
-      this.changeMonth(1, { autoSelectDate: true });
+      this.slideMonth(1);
     },
 
     selectDay(e) {
-      if (e.timeStamp <= this.calendarSuppressTapUntil) {
-        return;
-      }
-      this.calendarSuppressTapUntil = 0;
-
       const { date } = e.currentTarget.dataset;
       if (!date) return;
       

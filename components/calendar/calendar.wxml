@@ -12,40 +12,39 @@
     </block>
   </view>
 
-  <view
-    class="calendar-days-viewport"
-    bindtouchstart="onCalendarTouchStart"
-    bindtouchmove="onCalendarTouchMove"
-    bindtouchend="onCalendarTouchEnd"
-    bindtouchcancel="onCalendarTouchCancel"
-  >
-    <view
-      class="calendar-days-track"
-      style="transform: translate3d({{swipeOffset}}, 0, 0); transition: {{swipeTransition}};"
+  <view class="calendar-days-viewport">
+    <swiper
+      class="calendar-swiper"
+      current="{{swiperCurrent}}"
+      duration="{{swiperDuration}}"
+      easing-function="easeOutCubic"
+      bindanimationfinish="onCalendarSwiperFinish"
     >
       <block wx:for="{{monthPanels}}" wx:key="key" wx:for-item="panel">
-        <view class="days-grid month-panel">
-          <block wx:for="{{panel.days}}" wx:key="dateKey" wx:for-item="day">
-            <view
-              class="day-item {{day.fullDate === selectedDate ? 'selected' : ''}} {{day.isPast ? 'past' : ''}} {{!day.day ? 'empty' : ''}}"
-              hover-class="{{!day.day ? 'none' : 'day-item-hover'}}"
-              hover-stay-time="100"
-              bindtap="selectDay"
-              data-date="{{day.fullDate}}"
-            >
-              <view class="day-num">{{day.day}}</view>
-              <block wx:if="{{day.hasEvent}}">
-                <view wx:if="{{day.eventIcons.length > 0}}" class="event-icons event-icons-count-{{day.eventIcons.length}}">
-                  <image wx:for="{{day.eventIcons}}" wx:key="*this" wx:for-item="icon" class="event-icon" src="{{icon}}" mode="aspectFit"></image>
-                </view>
-                <view wx:else class="event-dot"></view>
-              </block>
-              <text wx:if="{{day.eventBadge}}" class="multi-badge">{{day.eventBadge}}</text>
-            </view>
-          </block>
-        </view>
+        <swiper-item class="month-panel">
+          <view class="days-grid">
+            <block wx:for="{{panel.days}}" wx:key="dateKey" wx:for-item="day">
+              <view
+                class="day-item {{day.fullDate === selectedDate ? 'selected' : ''}} {{day.isPast ? 'past' : ''}} {{!day.day ? 'empty' : ''}}"
+                hover-class="{{!day.day ? 'none' : 'day-item-hover'}}"
+                hover-stay-time="100"
+                bindtap="selectDay"
+                data-date="{{day.fullDate}}"
+              >
+                <view class="day-num">{{day.day}}</view>
+                <block wx:if="{{day.hasEvent}}">
+                  <view wx:if="{{day.eventIcons.length > 0}}" class="event-icons event-icons-count-{{day.eventIcons.length}}">
+                    <image wx:for="{{day.eventIcons}}" wx:key="*this" wx:for-item="icon" class="event-icon" src="{{icon}}" mode="aspectFit"></image>
+                  </view>
+                  <view wx:else class="event-dot"></view>
+                </block>
+                <text wx:if="{{day.eventBadge}}" class="multi-badge">{{day.eventBadge}}</text>
+              </view>
+            </block>
+          </view>
+        </swiper-item>
       </block>
-    </view>
+    </swiper>
   </view>
 
   <view wx:if="{{showMonthPicker}}" class="month-picker-mask" bindtap="closeMonthPicker">

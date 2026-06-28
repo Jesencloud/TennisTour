@@ -34,13 +34,13 @@
 
 .calendar-days-viewport {
   width: 100%;
+  height: 600rpx;
   overflow: hidden;
 }
 
-.calendar-days-track {
-  display: flex;
-  width: 300%;
-  margin-left: -100%;
+.calendar-swiper {
+  width: 100%;
+  height: 600rpx;
 }
 
 .weekday-header {
@@ -57,13 +57,16 @@
 }
 
 .days-grid {
+  height: 600rpx;
   display: grid;
   grid-template-columns: repeat(7, 1fr);
+  grid-auto-rows: 100rpx;
+  align-content: space-between;
 }
 
 .month-panel {
-  width: 33.3333%;
-  flex: 0 0 33.3333%;
+  width: 100%;
+  height: 600rpx;
 }
 
 .day-item {

@@ -46,6 +46,29 @@ const TOUR_DISPLAY_ORDER = {
   ATP: 2,
   'Grand Slam': 3
 };
+const DISPLAY_LANGS = ['zh', 'en'];
+const TOUR_DISPLAY_NAMES = {
+  zh: {
+    ATP: 'ATP 男子',
+    WTA: 'WTA 女子',
+    'Grand Slam': 'Grand Slam 大满贯'
+  },
+  en: {
+    ATP: 'ATP Men',
+    WTA: 'WTA Women',
+    'Grand Slam': 'Grand Slam'
+  }
+};
+const TOUR_LEVEL_DISPLAY_NAMES = {
+  zh: {
+    ATP: '男子',
+    WTA: '女子'
+  },
+  en: {
+    ATP: 'MEN',
+    WTA: 'WOMEN'
+  }
+};
 
 function createDefaultPrompt() {
   return Object.assign({}, DEFAULT_PROMPT);
@@ -89,10 +112,17 @@ function getEventDateRange(event) {
   return dates;
 }
 
-function createEventDates(events) {
+function createEventIndexes(events) {
   const eventDateMap = {};
+  const eventsByDate = {};
+
   events.forEach(event => {
     getEventDateRange(event).forEach(date => {
+      if (!eventsByDate[date]) {
+        eventsByDate[date] = [];
+      }
+      eventsByDate[date].push(event);
+
       const icons = getEventIcons(event);
       if (!icons.length) return;
 
@@ -108,7 +138,7 @@ function createEventDates(events) {
     });
   });
 
-  const finalMap = {};
+  const eventDates = {};
   for (const date in eventDateMap) {
     const list = eventDateMap[date];
     list.sort((a, b) => a.priority - b.priority);
@@ -120,18 +150,59 @@ function createEventDates(events) {
       }
     });
 
-    finalMap[date] = {
+    eventDates[date] = {
       icons: uniqueIcons.slice(0, 2),
       hasMultiple: uniqueIcons.length > 2,
       badge: list.some(item => item.isGrandSlam)
         ? '👑'
-        : uniqueIcons.length > 2 ? '🥎' : ''
+      : uniqueIcons.length > 2 ? '🥎' : ''
     };
   }
-  return finalMap;
+
+  return { eventDates, eventsByDate };
 }
 
-const eventDates = createEventDates(tennisEvents);
+function getTourDisplayValue(event, lang = 'zh') {
+  const names = TOUR_DISPLAY_NAMES[lang] || TOUR_DISPLAY_NAMES.zh;
+  return names[event.tour] || event.tour;
+}
+
+function getLevelDisplayValue(event, lang = 'zh') {
+  return getLevelLabel(event.level, lang);
+}
+
+function getTourLevelDisplayValue(event, lang = 'zh') {
+  const level = getLevelDisplayValue(event, lang);
+  const names = TOUR_LEVEL_DISPLAY_NAMES[lang] || TOUR_LEVEL_DISPLAY_NAMES.zh;
+  const tour = names[event.tour];
+  return tour ? `${tour} ${level}` : level;
+}
+
+function getSurfaceDisplayValue(event, lang = 'zh') {
+  return lang === 'zh'
+    ? event.surfaceCn || event.surface
+    : event.surfaceEn || event.surface;
+}
+
+function createDisplayEventsById(events) {
+  return events.reduce((displayEventsById, event) => {
+    const icons = getEventIcons(event);
+    displayEventsById[event.id] = DISPLAY_LANGS.reduce((displayByLang, lang) => {
+      displayByLang[lang] = {
+        tourDisplay: getTourDisplayValue(event, lang),
+        levelDisplay: getLevelDisplayValue(event, lang),
+        tourLevelDisplay: getTourLevelDisplayValue(event, lang),
+        surfaceDisplay: getSurfaceDisplayValue(event, lang),
+        icons
+      };
+      return displayByLang;
+    }, {});
+    return displayEventsById;
+  }, {});
+}
+
+const { eventDates, eventsByDate } = createEventIndexes(tennisEvents);
+const displayEventsById = createDisplayEventsById(tennisEvents);
 
 Page({
   touchStartTime: 0,
@@ -201,27 +272,24 @@ Page({
     return `${year}-${month}-${day}`;
   },
 
-  isDateInEventRange(date, event) {
-    return date >= event.startDate && date <= event.endDate;
-  },
-
   getEventsForDate(date) {
-    return tennisEvents
-      .filter(event => this.isDateInEventRange(date, event))
+    return (eventsByDate[date] || [])
+      .slice()
       .sort((a, b) => (
         (TOUR_DISPLAY_ORDER[a.tour] || 9) - (TOUR_DISPLAY_ORDER[b.tour] || 9) ||
+        getLevelPriority(a.level, 9) - getLevelPriority(b.level, 9) ||
         a.id - b.id
       ));
   },
 
   getDisplayEventsForDate(date, lang = this.data.lang) {
-    return this.getEventsForDate(date).map(event => Object.assign({}, event, {
-      tourDisplay: this.getTourDisplay(event, lang),
-      levelDisplay: this.getLevelDisplay(event, lang),
-      tourLevelDisplay: this.getTourLevelDisplay(event, lang),
-      surfaceDisplay: this.getSurfaceDisplay(event, lang),
-      icons: getEventIcons(event)
-    }));
+    return this.getEventsForDate(date).map(event => (
+      Object.assign(
+        {},
+        event,
+        displayEventsById[event.id][lang] || displayEventsById[event.id].zh
+      )
+    ));
   },
 
   onDateSelect(e) {
@@ -288,57 +356,13 @@ Page({
     return `${this.getEventLocation(event)} ${event.flag}`;
   },
 
-  getTourDisplay(event, lang = this.data.lang) {
-    const tourNames = {
-      zh: {
-        ATP: 'ATP 男子',
-        WTA: 'WTA 女子',
-        'Grand Slam': 'Grand Slam 大满贯'
-      },
-      en: {
-        ATP: 'ATP Men',
-        WTA: 'WTA Women',
-        'Grand Slam': 'Grand Slam'
-      }
-    };
-    const names = tourNames[lang] || tourNames.zh;
-    return names[event.tour] || event.tour;
-  },
-
-  getLevelDisplay(event, lang = this.data.lang) {
-    return getLevelLabel(event.level, lang);
-  },
-
-  getTourLevelDisplay(event, lang = this.data.lang) {
-    const level = this.getLevelDisplay(event, lang);
-    const tourNames = {
-      zh: {
-        ATP: '男子',
-        WTA: '女子'
-      },
-      en: {
-        ATP: 'MEN',
-        WTA: 'WOMEN'
-      }
-    };
-    const names = tourNames[lang] || tourNames.zh;
-    const tour = names[event.tour];
-    return tour ? `${tour} ${level}` : level;
-  },
-
-  getSurfaceDisplay(event, lang = this.data.lang) {
-    return lang === 'zh'
-      ? event.surfaceCn || event.surface
-      : event.surfaceEn || event.surface;
-  },
-
   getCalendarDescription(event) {
     const lang = this.data.lang;
     return [
       `${t('labelEventDates', lang)}: ${this.formatEventDates(event)}`,
-      `${t('labelTour', lang)}: ${this.getTourDisplay(event)}`,
-      `${t('labelLevel', lang)}: ${this.getLevelDisplay(event)}`,
-      `${t('labelSurface', lang)}: ${this.getSurfaceDisplay(event)}`,
+      `${t('labelTour', lang)}: ${getTourDisplayValue(event, lang)}`,
+      `${t('labelLevel', lang)}: ${getLevelDisplayValue(event, lang)}`,
+      `${t('labelSurface', lang)}: ${getSurfaceDisplayValue(event, lang)}`,
       `${t('labelLocation', lang)}: ${this.getFlaggedEventLocation(event)}`
     ].join('\n');
   },
@@ -392,9 +416,9 @@ Page({
       subtitle: t('calendarDisclaimer', lang),
       eventName: event.eventName,
       eventDates: this.formatEventDates(event),
-      tour: this.getTourDisplay(event),
-      level: this.getLevelDisplay(event),
-      surface: this.getSurfaceDisplay(event),
+      tour: getTourDisplayValue(event, lang),
+      level: getLevelDisplayValue(event, lang),
+      surface: getSurfaceDisplayValue(event, lang),
       location: this.getFlaggedEventLocation(event),
       confirmText: t('add', lang),
       cancelText: t('cancel', lang),
