@@ -15,6 +15,7 @@
   <calendar
      id="calendar"
      lang="{{lang}}"
+     selectedDate="{{selectedDate}}"
      bind:selectdate="onDateSelect"
    />
 

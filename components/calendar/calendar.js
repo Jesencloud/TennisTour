@@ -39,6 +39,15 @@ Component({
     lang: {
       type: String,
       value: 'zh'
+    },
+    selectedDate: {
+      type: String,
+      value: '',
+      observer(newVal) {
+        if (newVal && newVal !== this.data.selectedDate && this.data.currentYear) {
+          this.goToDate(newVal);
+        }
+      }
     }
   },
 
@@ -59,16 +68,19 @@ Component({
   lifetimes: {
     attached() {
       const now = new Date();
-      const currentYear = now.getFullYear();
-      const currentMonth = now.getMonth();
+      const defaultDate = this.formatDate(now.getFullYear(), now.getMonth(), now.getDate());
+      const initialDate = this.properties.selectedDate || defaultDate;
+      const parsed = this.parseDate(initialDate) || { year: now.getFullYear(), month: now.getMonth(), day: now.getDate() };
+      
+      const currentYear = parsed.year;
+      const currentMonth = parsed.month;
       const locale = getCalendarText(this.data.lang);
-      const selectedDate = this.formatDate(currentYear, currentMonth, now.getDate());
       const calendarState = this.getCalendarState(currentYear, currentMonth);
 
       this.setData({
         currentYear,
         currentMonth,
-        selectedDate,
+        selectedDate: initialDate,
         baseYear: currentYear,
         pickerYear: currentYear,
         weekdays: locale.weekdays,

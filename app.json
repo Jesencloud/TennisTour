@@ -6,7 +6,9 @@
     "backgroundTextStyle": "light",
     "navigationBarBackgroundColor": "#fff",
     "navigationBarTitleText": "网球赛程日历",
-    "navigationBarTextStyle": "black"
+    "navigationBarTextStyle": "black",
+    "enableShareAppMessage": true,
+    "enableShareTimeline": true
   },
   "style": "v2",
   "lazyCodeLoading": "requiredComponents",

@@ -152,18 +152,31 @@ Page({
     prompt: createDefaultPrompt()
   },
 
-  onLoad() {
+  onLoad(options) {
+    let lang = this.data.lang;
+    if (options && options.lang && (options.lang === 'zh' || options.lang === 'en')) {
+      lang = options.lang;
+    }
+
     const todayDate = this.getTodayDate();
     this.todayDate = todayDate;
-    const selectedEvents = this.getDisplayEventsForDate(todayDate);
+
+    let selectedDate = todayDate;
+    if (options && options.date && /^\d{4}-\d{2}-\d{2}$/.test(options.date)) {
+      selectedDate = options.date;
+    }
+
+    const selectedEvents = this.getDisplayEventsForDate(selectedDate, lang);
 
     this.setData({
-      selectedDate: todayDate,
-      showTodayButton: false,
+      lang,
+      text: getText(lang),
+      selectedDate,
+      showTodayButton: selectedDate !== todayDate,
       selectedEvents
     });
 
-    this.updateNavigationTitle(this.data.lang);
+    this.updateNavigationTitle(lang);
   },
 
   onReady() {
@@ -178,6 +191,54 @@ Page({
         showTodayButton: this.data.selectedDate !== todayDate
       });
     }
+  },
+
+  onShareAppMessage() {
+    const { lang, selectedDate, selectedEvents } = this.data;
+    let title = '';
+    if (lang === 'zh') {
+      if (selectedEvents && selectedEvents.length > 0) {
+        const eventNames = selectedEvents.map(e => e.eventNameDisplay).slice(0, 2).join('、');
+        title = `网球赛程日历 | ${selectedDate} 有 ${eventNames} 等赛事`;
+      } else {
+        title = '网球赛程日历 - 全球 ATP / WTA / 大满贯赛事日程指南';
+      }
+    } else {
+      if (selectedEvents && selectedEvents.length > 0) {
+        const eventNames = selectedEvents.map(e => e.eventNameDisplay).slice(0, 2).join(', ');
+        title = `Tennis Calendar | ${eventNames} on ${selectedDate}`;
+      } else {
+        title = 'Tennis Calendar - ATP / WTA / Grand Slams Schedule Guide';
+      }
+    }
+    return {
+      title,
+      path: `/pages/index/index?lang=${lang}&date=${selectedDate}`
+    };
+  },
+
+  onShareTimeline() {
+    const { lang, selectedDate, selectedEvents } = this.data;
+    let title = '';
+    if (lang === 'zh') {
+      if (selectedEvents && selectedEvents.length > 0) {
+        const eventNames = selectedEvents.map(e => e.eventNameDisplay).slice(0, 2).join('、');
+        title = `网球赛程日历 | ${selectedDate} 有 ${eventNames} 等赛事`;
+      } else {
+        title = '网球赛程日历 - 全球 ATP / WTA / 大满贯赛事日程指南';
+      }
+    } else {
+      if (selectedEvents && selectedEvents.length > 0) {
+        const eventNames = selectedEvents.map(e => e.eventNameDisplay).slice(0, 2).join(', ');
+        title = `Tennis Calendar | ${eventNames} on ${selectedDate}`;
+      } else {
+        title = 'Tennis Calendar - ATP / WTA / Grand Slams Schedule Guide';
+      }
+    }
+    return {
+      title,
+      query: `lang=${lang}&date=${selectedDate}`
+    };
   },
 
   toggleLang() {
