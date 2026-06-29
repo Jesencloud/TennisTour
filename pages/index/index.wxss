@@ -152,13 +152,28 @@
 }
 
 .row-name {
-  color: #333;
   flex: 1;
   min-width: 0;
-  font-weight: 600;
-  line-height: 1.4;
   overflow: visible;
   white-space: normal;
+  word-break: break-word;
+}
+
+.row-name-primary {
+  display: block;
+  color: #333;
+  font-weight: 600;
+  line-height: 1.4;
+  word-break: break-word;
+}
+
+.row-name-secondary {
+  display: block;
+  margin-top: 4rpx;
+  color: #64748b;
+  font-size: 24rpx;
+  line-height: 1.35;
+  font-weight: 400;
   word-break: break-word;
 }
 
@@ -315,6 +330,21 @@
   width: 6rpx;
   background: linear-gradient(to bottom, #047857, #16a34a, #ca8a04, #2563eb);
   border-radius: 4rpx;
+}
+
+.prompt-event-primary {
+  display: block;
+  word-break: break-word;
+}
+
+.prompt-event-secondary {
+  display: block;
+  margin-top: 6rpx;
+  color: #64748b;
+  font-size: 24rpx;
+  line-height: 1.45;
+  font-weight: 400;
+  word-break: break-word;
 }
 
 .prompt-detail-list {

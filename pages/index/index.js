@@ -28,6 +28,7 @@ const DEFAULT_PROMPT = {
   title: '',
   subtitle: '',
   eventName: '',
+  eventNameSecondary: '',
   eventDates: '',
   tour: '',
   level: '',
@@ -172,12 +173,19 @@ function getEventNameDisplayValue(event, lang = 'zh') {
     : event.eventName;
 }
 
+function getEventNameSecondaryValue(event, lang = 'zh') {
+  return lang === 'zh' && event.eventNameCn && event.eventNameCn !== event.eventName
+    ? event.eventName
+    : '';
+}
+
 function createDisplayEventsById(events) {
   return events.reduce((displayEventsById, event) => {
     const icons = getEventIcons(event);
     displayEventsById[event.id] = DISPLAY_LANGS.reduce((displayByLang, lang) => {
       displayByLang[lang] = {
         eventNameDisplay: getEventNameDisplayValue(event, lang),
+        eventNameSecondary: getEventNameSecondaryValue(event, lang),
         tourDisplay: getTourDisplayValue(event, lang),
         levelDisplay: getLevelDisplayValue(event, lang),
         tourLevelDisplay: getTourLevelDisplayValue(event, lang),
@@ -404,6 +412,7 @@ Page({
       title: t('addCalendar', lang),
       subtitle: t('calendarDisclaimer', lang),
       eventName: getEventNameDisplayValue(event, lang),
+      eventNameSecondary: getEventNameSecondaryValue(event, lang),
       eventDates: this.formatEventDates(event),
       tour: getTourDisplayValue(event, lang),
       level: getLevelDisplayValue(event, lang),

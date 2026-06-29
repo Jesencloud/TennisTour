@@ -43,7 +43,10 @@
           <text wx:if="{{selectedEvents.length > 1}}" class="row-number" user-select="{{true}}">{{index + 1}}.</text>
           <view class="row-main">
             <view class="row-title-line">
-              <text class="row-name" user-select="{{true}}">{{item.eventNameDisplay}}</text>
+              <view class="row-name">
+                <text class="row-name-primary" user-select="{{true}}">{{item.eventNameDisplay}}</text>
+                <text wx:if="{{item.eventNameSecondary}}" class="row-name-secondary" user-select="{{true}}">{{item.eventNameSecondary}}</text>
+              </view>
             </view>
             <view class="row-meta">
               <block wx:if="{{item.icons.length > 0}}">
@@ -78,7 +81,8 @@
       <view wx:if="{{prompt.eventName}}" class="prompt-divider"></view>
 
       <view wx:if="{{prompt.eventName}}" class="prompt-event">
-        <text user-select="{{true}}">{{prompt.eventName}}</text>
+        <text class="prompt-event-primary" user-select="{{true}}">{{prompt.eventName}}</text>
+        <text wx:if="{{prompt.eventNameSecondary}}" class="prompt-event-secondary" user-select="{{true}}">{{prompt.eventNameSecondary}}</text>
       </view>
 
       <view wx:if="{{prompt.eventDates || prompt.tour || prompt.level || prompt.surface || prompt.location}}" class="prompt-detail-list">
