@@ -110,15 +110,13 @@
 }
 
 .day-item.selected {
-  background: linear-gradient(135deg, #fce7f3, #e0f2fe);
-  border: 2rpx solid #db2777;
-  box-shadow: 0 4rpx 10rpx rgba(219, 39, 119, 0.15);
+  background: #dcfce7;
   border-radius: 50%;
 }
 
 .day-item.selected .day-num {
   font-weight: bold;
-  color: #db2777;
+  color: #047857;
 }
 
 .day-item.past .day-num {
