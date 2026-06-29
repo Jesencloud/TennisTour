@@ -111,11 +111,32 @@
 .event-row {
   display: flex;
   align-items: flex-start;
-  padding: 18rpx 16rpx;
+  padding: 18rpx 16rpx 18rpx 24rpx;
   border-bottom: 1rpx solid #f0f0f0;
   font-size: 26rpx;
   overflow: hidden;
+  position: relative;
   transition: background-color 0.15s ease;
+}
+
+.event-row::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 18rpx;
+  bottom: 18rpx;
+  width: 6rpx;
+  border-radius: 0 4rpx 4rpx 0;
+  background: #cbd5e1;
+  transition: background-color 0.2s ease;
+}
+
+.event-row-atp::before {
+  background: #0284c7;
+}
+
+.event-row-wta::before {
+  background: #db2777;
 }
 
 .event-row:last-child {

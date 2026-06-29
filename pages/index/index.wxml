@@ -31,7 +31,7 @@
     <view wx:if="{{selectedEvents.length > 0}}" class="event-list">
       <block wx:for="{{selectedEvents}}" wx:key="id">
         <view
-          class="event-row"
+          class="event-row {{item.tour === 'ATP' ? 'event-row-atp' : item.tour === 'WTA' ? 'event-row-wta' : ''}}"
           hover-class="event-row-hover"
           data-id="{{item.id}}"
           bindtap="onEventTap"
