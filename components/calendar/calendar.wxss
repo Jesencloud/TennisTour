@@ -109,13 +109,39 @@
 }
 
 .event-badge {
-  display: block;
-  width: 32rpx;
-  height: 24rpx;
+  display: flex;
+  width: 100%;
+  min-height: 18rpx;
   margin-top: 2rpx;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: 15rpx;
+  line-height: 17rpx;
+  font-weight: 600;
+  color: #047857;
+  text-align: center;
+  overflow: hidden;
+}
+
+.event-badge-line {
+  display: block;
+  max-width: 96rpx;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.event-badge-wta {
+  color: #7e22ce;
+}
+
+.event-badge-atp {
+  color: #1d4ed8;
+}
+
+.event-badge-crown {
   font-size: 22rpx;
   line-height: 24rpx;
-  text-align: center;
 }
 
 .event-badge-empty {

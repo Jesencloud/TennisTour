@@ -49,7 +49,15 @@ const TOUR_DISPLAY_ORDER = {
 };
 const DISPLAY_LANGS = ['zh', 'en'];
 const GRAND_SLAM_DATE_BADGE = '👑';
-const EVENT_DATE_BADGE = '🎾';
+const DATE_LEVEL_LABELS = {
+  '1000': '1000',
+  '500': '500',
+  '250': '250',
+  finals: 'Finals',
+  team: 'Team',
+  laverCup: 'Laver',
+  davisCup: 'Davis'
+};
 const TOUR_DISPLAY_NAMES = {
   zh: {
     ATP: 'ATP 男子',
@@ -115,6 +123,38 @@ function getEventDateRange(event) {
   return dates;
 }
 
+function getDateEventTypeLabel(event) {
+  const levelMeta = getLevelMeta(event.level);
+  if (!levelMeta) return event.tour ? `${event.tour}${event.level}` : event.level;
+  if (levelMeta.key === 'grandSlam') return GRAND_SLAM_DATE_BADGE;
+
+  const levelLabel = DATE_LEVEL_LABELS[levelMeta.key] || event.level;
+  return event.tour ? `${event.tour}${levelLabel}` : levelLabel;
+}
+
+function getDateBadgeSortValue(label) {
+  const tourMatch = /^(WTA|ATP)/.exec(label);
+  const tour = tourMatch ? tourMatch[1] : '';
+  const level = tour ? label.slice(tour.length) : label;
+  const numericLevel = /^\d+$/.test(level) ? level : null;
+
+  return [
+    TOUR_DISPLAY_ORDER[tour] || 9,
+    numericLevel ? getLevelPriority(numericLevel, 9) : 9,
+    label
+  ];
+}
+
+function sortDateBadges(a, b) {
+  const aParts = getDateBadgeSortValue(a);
+  const bParts = getDateBadgeSortValue(b);
+  return (
+    aParts[0] - bParts[0] ||
+    aParts[1] - bParts[1] ||
+    aParts[2].localeCompare(bParts[2])
+  );
+}
+
 function createEventIndexes(events) {
   const eventDates = {};
   const eventsByDate = {};
@@ -132,12 +172,22 @@ function createEventIndexes(events) {
       if (!eventDates[date]) {
         eventDates[date] = {
           hasEvent: true,
-          badge: EVENT_DATE_BADGE
+          badges: []
         };
       }
 
       if (isGrandSlam) {
-        eventDates[date].badge = GRAND_SLAM_DATE_BADGE;
+        eventDates[date].isGrandSlam = true;
+        eventDates[date].badges = [GRAND_SLAM_DATE_BADGE];
+        return;
+      }
+
+      if (!eventDates[date].isGrandSlam) {
+        const badge = getDateEventTypeLabel(event);
+        if (!eventDates[date].badges.includes(badge)) {
+          eventDates[date].badges.push(badge);
+          eventDates[date].badges.sort(sortDateBadges);
+        }
       }
     });
   });

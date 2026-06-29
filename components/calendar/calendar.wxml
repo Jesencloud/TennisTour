@@ -32,10 +32,12 @@
                 data-date="{{day.fullDate}}"
               >
                 <view class="day-num">{{day.day}}</view>
-                <text
+                <view
                   wx:if="{{day.day}}"
                   class="event-badge {{day.hasEvent ? '' : 'event-badge-empty'}}"
-                >{{day.eventBadge}}</text>
+                >
+                  <text wx:for="{{day.eventBadges}}" wx:key="label" class="event-badge-line event-badge-{{item.tone}}">{{item.label}}</text>
+                </view>
               </view>
             </block>
           </view>

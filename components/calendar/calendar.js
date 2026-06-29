@@ -11,6 +11,26 @@ function getCalendarText(lang) {
   };
 }
 
+function normalizeEventBadge(badge) {
+  const label = typeof badge === 'object' && badge !== null
+    ? badge.label
+    : badge;
+
+  if (!label) return null;
+
+  const text = String(label);
+  let tone = 'other';
+  if (text === '👑') {
+    tone = 'crown';
+  } else if (text.indexOf('WTA') === 0) {
+    tone = 'wta';
+  } else if (text.indexOf('ATP') === 0) {
+    tone = 'atp';
+  }
+
+  return { label: text, tone };
+}
+
 Component({
   calendarSwipeAnimating: false,
 
@@ -66,13 +86,20 @@ Component({
       if (!marker) {
         return {
           hasEvent: false,
-          eventBadge: ''
+          eventBadges: []
         };
       }
 
+      const rawBadges = Array.isArray(marker.badges)
+        ? marker.badges
+        : [marker.badge].filter(Boolean);
+      const eventBadges = rawBadges
+        .map(normalizeEventBadge)
+        .filter(Boolean);
+
       return {
         hasEvent: !!marker.hasEvent,
-        eventBadge: marker.badge || ''
+        eventBadges
       };
     },
 
@@ -132,7 +159,7 @@ Component({
           fullDate: fullDate,
           dateKey: fullDate,
           hasEvent: eventMarker.hasEvent,
-          eventBadge: eventMarker.eventBadge,
+          eventBadges: eventMarker.eventBadges,
           isPast: fullDate < todayDate
         });
       }
