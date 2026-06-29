@@ -372,6 +372,14 @@
   flex-shrink: 0;
 }
 
+.prompt-detail-label::after {
+  content: ": ";
+}
+
+.lang-zh .prompt-detail-label::after {
+  content: "：";
+}
+
 .prompt-detail-value {
   color: #333;
   flex: 1;

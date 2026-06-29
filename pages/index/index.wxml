@@ -1,5 +1,5 @@
 <!--pages/index/index.wxml-->
-<view class="container">
+<view class="container {{lang === 'zh' ? 'lang-zh' : 'lang-en'}}">
   <view class="header">
     <view class="header-main">
       <view>
@@ -13,11 +13,10 @@
   </view>
 
   <calendar
-    id="calendar"
-    eventDates="{{eventDates}}" 
-    lang="{{lang}}"
-    bind:selectdate="onDateSelect"
-  />
+     id="calendar"
+     lang="{{lang}}"
+     bind:selectdate="onDateSelect"
+   />
 
   <view class="event-section">
     <view class="section-header">
@@ -35,12 +34,10 @@
           class="event-row"
           hover-class="event-row-hover"
           data-id="{{item.id}}"
-          bindtouchstart="onEventTouchStart"
-          bindtouchend="onEventTouchEnd"
-          bindtouchcancel="onEventTouchCancel"
           bindtap="onEventTap"
+          bindlongpress="onEventLongPress"
         >
-          <text wx:if="{{selectedEvents.length > 1}}" class="row-number" user-select="{{true}}">{{index + 1}}.</text>
+          <text wx:if="{{selectedEvents.length > 1}}" class="row-number">{{index + 1}}.</text>
           <view class="row-main">
             <view class="row-title-line">
               <view class="row-name">
@@ -87,27 +84,27 @@
 
       <view wx:if="{{prompt.eventDates || prompt.tour || prompt.level || prompt.surface || prompt.location}}" class="prompt-detail-list">
         <view wx:if="{{prompt.eventDates}}" class="prompt-detail-row">
-          <text class="prompt-detail-label" user-select="{{true}}">{{text.labelEventDates}}{{lang === 'zh' ? '：' : ': '}}</text>
+          <text class="prompt-detail-label" user-select="{{true}}">{{text.labelEventDates}}</text>
           <text class="prompt-detail-value" user-select="{{true}}">{{prompt.eventDates}}</text>
         </view>
 
         <view wx:if="{{prompt.tour}}" class="prompt-detail-row">
-          <text class="prompt-detail-label" user-select="{{true}}">{{text.labelTour}}{{lang === 'zh' ? '：' : ': '}}</text>
+          <text class="prompt-detail-label" user-select="{{true}}">{{text.labelTour}}</text>
           <text class="prompt-detail-value" user-select="{{true}}">{{prompt.tour}}</text>
         </view>
 
         <view wx:if="{{prompt.level}}" class="prompt-detail-row">
-          <text class="prompt-detail-label" user-select="{{true}}">{{text.labelLevel}}{{lang === 'zh' ? '：' : ': '}}</text>
+          <text class="prompt-detail-label" user-select="{{true}}">{{text.labelLevel}}</text>
           <text class="prompt-detail-value" user-select="{{true}}">{{prompt.level}}</text>
         </view>
 
         <view wx:if="{{prompt.surface}}" class="prompt-detail-row">
-          <text class="prompt-detail-label" user-select="{{true}}">{{text.labelSurface}}{{lang === 'zh' ? '：' : ': '}}</text>
+          <text class="prompt-detail-label" user-select="{{true}}">{{text.labelSurface}}</text>
           <text class="prompt-detail-value" user-select="{{true}}">{{prompt.surface}}</text>
         </view>
 
         <view wx:if="{{prompt.location}}" class="prompt-detail-row">
-          <text class="prompt-detail-label" user-select="{{true}}">{{text.labelLocation}}{{lang === 'zh' ? '：' : ': '}}</text>
+          <text class="prompt-detail-label" user-select="{{true}}">{{text.labelLocation}}</text>
           <text class="prompt-detail-value" user-select="{{true}}">{{prompt.location}}</text>
         </view>
 

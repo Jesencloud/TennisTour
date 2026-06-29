@@ -1,5 +1,5 @@
 // pages/index/index.js
-const { tennisEvents } = require('../../data/tennis_events.js');
+const { tennisEvents, eventsByDate } = require('../../data/tennis_events.js');
 const { t } = require('../../utils/i18n.js');
 const {
   getEventIcons,
@@ -42,22 +42,7 @@ const DEFAULT_PROMPT = {
 };
 
 const CALENDAR_ALARM_OFFSET = 0;
-const TOUR_DISPLAY_ORDER = {
-  WTA: 1,
-  ATP: 2,
-  'Grand Slam': 3
-};
 const DISPLAY_LANGS = ['zh', 'en'];
-const GRAND_SLAM_DATE_BADGE = '👑';
-const DATE_LEVEL_LABELS = {
-  '1000': '1000',
-  '500': '500',
-  '250': '250',
-  finals: 'Finals',
-  team: 'Team',
-  laverCup: 'Laver',
-  davisCup: 'Davis'
-};
 const TOUR_DISPLAY_NAMES = {
   zh: {
     ATP: 'ATP 男子',
@@ -98,102 +83,7 @@ function parseDateParts(date) {
   return { year, month, day };
 }
 
-function parseDateValue(date) {
-  const parts = parseDateParts(date);
-  if (!parts) return null;
-  return new Date(Date.UTC(parts.year, parts.month - 1, parts.day));
-}
 
-function formatDateValue(date) {
-  const y = date.getUTCFullYear();
-  const m = String(date.getUTCMonth() + 1).padStart(2, '0');
-  const d = String(date.getUTCDate()).padStart(2, '0');
-  return `${y}-${m}-${d}`;
-}
-
-function getEventDateRange(event) {
-  const startDate = parseDateValue(event.startDate);
-  const endDate = parseDateValue(event.endDate || event.startDate);
-  if (!startDate || !endDate) return [];
-
-  const dates = [];
-  for (let d = startDate.getTime(); d <= endDate.getTime(); d += 86400000) {
-    dates.push(formatDateValue(new Date(d)));
-  }
-  return dates;
-}
-
-function getDateEventTypeLabel(event) {
-  const levelMeta = getLevelMeta(event.level);
-  if (!levelMeta) return event.tour ? `${event.tour}${event.level}` : event.level;
-  if (levelMeta.key === 'grandSlam') return GRAND_SLAM_DATE_BADGE;
-
-  const levelLabel = DATE_LEVEL_LABELS[levelMeta.key] || event.level;
-  return event.tour ? `${event.tour}${levelLabel}` : levelLabel;
-}
-
-function getDateBadgeSortValue(label) {
-  const tourMatch = /^(WTA|ATP)/.exec(label);
-  const tour = tourMatch ? tourMatch[1] : '';
-  const level = tour ? label.slice(tour.length) : label;
-  const numericLevel = /^\d+$/.test(level) ? level : null;
-
-  return [
-    TOUR_DISPLAY_ORDER[tour] || 9,
-    numericLevel ? getLevelPriority(numericLevel, 9) : 9,
-    label
-  ];
-}
-
-function sortDateBadges(a, b) {
-  const aParts = getDateBadgeSortValue(a);
-  const bParts = getDateBadgeSortValue(b);
-  return (
-    aParts[0] - bParts[0] ||
-    aParts[1] - bParts[1] ||
-    aParts[2].localeCompare(bParts[2])
-  );
-}
-
-function createEventIndexes(events) {
-  const eventDates = {};
-  const eventsByDate = {};
-
-  events.forEach(event => {
-    const levelMeta = getLevelMeta(event.level);
-    const isGrandSlam = levelMeta && levelMeta.key === 'grandSlam';
-
-    getEventDateRange(event).forEach(date => {
-      if (!eventsByDate[date]) {
-        eventsByDate[date] = [];
-      }
-      eventsByDate[date].push(event);
-
-      if (!eventDates[date]) {
-        eventDates[date] = {
-          hasEvent: true,
-          badges: []
-        };
-      }
-
-      if (isGrandSlam) {
-        eventDates[date].isGrandSlam = true;
-        eventDates[date].badges = [GRAND_SLAM_DATE_BADGE];
-        return;
-      }
-
-      if (!eventDates[date].isGrandSlam) {
-        const badge = getDateEventTypeLabel(event);
-        if (!eventDates[date].badges.includes(badge)) {
-          eventDates[date].badges.push(badge);
-          eventDates[date].badges.sort(sortDateBadges);
-        }
-      }
-    });
-  });
-
-  return { eventDates, eventsByDate };
-}
 
 function getTourDisplayValue(event, lang = 'zh') {
   const names = TOUR_DISPLAY_NAMES[lang] || TOUR_DISPLAY_NAMES.zh;
@@ -248,16 +138,12 @@ function createDisplayEventsById(events) {
   }, {});
 }
 
-const { eventDates, eventsByDate } = createEventIndexes(tennisEvents);
 const displayEventsById = createDisplayEventsById(tennisEvents);
 
 Page({
-  touchStartTime: 0,
-  touchEndTime: 0,
   todayDate: '',
 
   data: {
-    eventDates: [],
     selectedDate: '',
     selectedEvents: [],
     showTodayButton: false,
@@ -272,13 +158,16 @@ Page({
     const selectedEvents = this.getDisplayEventsForDate(todayDate);
 
     this.setData({
-      eventDates,
       selectedDate: todayDate,
       showTodayButton: false,
       selectedEvents
     });
 
     this.updateNavigationTitle(this.data.lang);
+  },
+
+  onReady() {
+    this.calendarCtx = this.selectComponent('#calendar');
   },
 
   onShow() {
@@ -320,13 +209,7 @@ Page({
   },
 
   getEventsForDate(date) {
-    return (eventsByDate[date] || [])
-      .slice()
-      .sort((a, b) => (
-        (TOUR_DISPLAY_ORDER[a.tour] || 9) - (TOUR_DISPLAY_ORDER[b.tour] || 9) ||
-        getLevelPriority(a.level, 9) - getLevelPriority(b.level, 9) ||
-        a.id - b.id
-      ));
+    return eventsByDate[date] || [];
   },
 
   getDisplayEventsForDate(date, lang = this.data.lang) {
@@ -346,7 +229,7 @@ Page({
 
   goToday() {
     const todayDate = this.getTodayDate();
-    const calendar = this.selectComponent('#calendar');
+    const calendar = this.calendarCtx;
     if (calendar && calendar.goToDate) {
       wx.vibrateShort({ type: 'light', fail: () => {} });
       calendar.goToDate(todayDate);
@@ -414,32 +297,11 @@ Page({
     ].join('\n');
   },
 
-  onEventTouchStart(e) {
-    this.touchStartTime = e.timeStamp;
-  },
-
-  onEventTouchEnd(e) {
-    this.touchEndTime = e.timeStamp;
-  },
-
-  onEventTouchCancel() {
-    this.touchStartTime = 0;
-    this.touchEndTime = 0;
+  onEventLongPress() {
+    // Empty handler to natively suppress tap event on long press
   },
 
   onEventTap(e) {
-    const touchDuration = this.touchStartTime && this.touchEndTime
-      ? this.touchEndTime - this.touchStartTime
-      : 0;
-    if (touchDuration > 350) {
-      this.touchStartTime = 0;
-      this.touchEndTime = 0;
-      return;
-    }
-
-    this.touchStartTime = 0;
-    this.touchEndTime = 0;
-
     const id = Number(e.currentTarget.dataset.id);
     const event = this.getEventById(id);
     if (!event) return;
@@ -542,12 +404,8 @@ Page({
     this.todayDate = todayDate;
     this.setData({
       selectedDate: date,
-      showTodayButton: date !== todayDate
+      showTodayButton: date !== todayDate,
+      selectedEvents: this.getDisplayEventsForDate(date)
     });
-    this.filterEvents(date);
-  },
-
-  filterEvents(date) {
-    this.setData({ selectedEvents: this.getDisplayEventsForDate(date) });
   }
 });

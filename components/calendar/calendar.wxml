@@ -19,6 +19,7 @@
       duration="{{swiperDuration}}"
       easing-function="easeOutCubic"
       bindanimationfinish="onCalendarSwiperFinish"
+      bindtouchstart="onTouchStart"
     >
       <block wx:for="{{monthPanels}}" wx:key="key" wx:for-item="panel">
         <swiper-item class="month-panel">

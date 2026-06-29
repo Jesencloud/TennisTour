@@ -1,5 +1,6 @@
 // components/calendar/calendar.js
 const { t } = require('../../utils/i18n.js');
+const { eventDates } = require('../../data/tennis_events.js');
 
 const SWIPER_CENTER_INDEX = 1;
 const SWIPER_DURATION_MS = 220;
@@ -35,10 +36,6 @@ Component({
   calendarSwipeAnimating: false,
 
   properties: {
-    eventDates: {
-      type: Object,
-      value: {} // Object mapping 'YYYY-MM-DD' strings to event types
-    },
     lang: {
       type: String,
       value: 'zh'
@@ -66,7 +63,7 @@ Component({
       const currentMonth = now.getMonth();
       const locale = getCalendarText(this.data.lang);
       const selectedDate = this.formatDate(currentYear, currentMonth, now.getDate());
-      const calendarState = this.getCalendarState(currentYear, currentMonth, this.data.eventDates);
+      const calendarState = this.getCalendarState(currentYear, currentMonth);
 
       this.setData({
         currentYear,
@@ -103,14 +100,7 @@ Component({
       };
     },
 
-    generateCalendar() {
-      const { currentYear, currentMonth, eventDates } = this.data;
-      if (!currentYear) return;
-
-      this.setData(this.getCalendarState(currentYear, currentMonth, eventDates));
-    },
-
-    getCalendarState(currentYear, currentMonth, eventDates = this.data.eventDates) {
+    getCalendarState(currentYear, currentMonth) {
       const now = new Date();
       const todayDate = this.formatDate(now.getFullYear(), now.getMonth(), now.getDate());
       const prevMonth = this.getShiftedMonth(currentYear, currentMonth, -1);
@@ -119,22 +109,22 @@ Component({
       const monthPanels = [
         {
           key: `prev-${prevMonth.year}-${prevMonth.month}`,
-          days: this.createMonthDays(prevMonth.year, prevMonth.month, todayDate, eventDates)
+          days: this.createMonthDays(prevMonth.year, prevMonth.month, todayDate)
         },
         {
           key: `current-${currentYear}-${currentMonth}`,
-          days: this.createMonthDays(currentYear, currentMonth, todayDate, eventDates)
+          days: this.createMonthDays(currentYear, currentMonth, todayDate)
         },
         {
           key: `next-${nextMonth.year}-${nextMonth.month}`,
-          days: this.createMonthDays(nextMonth.year, nextMonth.month, todayDate, eventDates)
+          days: this.createMonthDays(nextMonth.year, nextMonth.month, todayDate)
         }
       ];
 
       return { monthPanels };
     },
 
-    createMonthDays(year, month, todayDate, eventDates) {
+    createMonthDays(year, month, todayDate) {
       const firstDay = new Date(year, month, 1).getDay();
       const daysInMonth = new Date(year, month + 1, 0).getDate();
       
@@ -323,19 +313,10 @@ Component({
       }
 
       this.setData(nextData, () => {
-        const finishChange = () => {
-          this.calendarSwipeAnimating = false;
-          if (options.autoSelectDate) {
-            this.triggerEvent('selectdate', { date: selectedDate });
-          }
-        };
-
-        if (options.resetSwiper) {
-          this.setData({ swiperDuration: SWIPER_DURATION_MS }, finishChange);
-          return;
+        this.calendarSwipeAnimating = false;
+        if (options.autoSelectDate) {
+          this.triggerEvent('selectdate', { date: selectedDate });
         }
-
-        finishChange();
       });
     },
 
@@ -355,13 +336,16 @@ Component({
       
       this.setData({ selectedDate: date });
       this.triggerEvent('selectdate', { date });
+    },
+
+    onTouchStart() {
+      if (this.data.swiperDuration !== SWIPER_DURATION_MS) {
+        this.setData({ swiperDuration: SWIPER_DURATION_MS });
+      }
     }
   },
 
   observers: {
-    'eventDates': function() {
-      this.generateCalendar();
-    },
     'lang': function(lang) {
       const locale = getCalendarText(lang);
       this.setData({
