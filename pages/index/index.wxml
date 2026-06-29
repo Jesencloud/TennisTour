@@ -43,7 +43,7 @@
           <text wx:if="{{selectedEvents.length > 1}}" class="row-number" user-select="{{true}}">{{index + 1}}.</text>
           <view class="row-main">
             <view class="row-title-line">
-              <text class="row-name" user-select="{{true}}">{{item.eventName}}</text>
+              <text class="row-name" user-select="{{true}}">{{item.eventNameDisplay}}</text>
             </view>
             <view class="row-meta">
               <block wx:if="{{item.icons.length > 0}}">

@@ -222,6 +222,141 @@ const getSurfaceDisplay = (tour, surface) => {
   };
 };
 
+const tournamentNameMap = {
+  // ========== 联合赛事 / 团体赛 ==========
+  'United Cup': '联合杯',
+  'Laver Cup': '拉沃尔杯',
+  'Davis Cup Qualifiers 1st Rd': '戴维斯杯资格赛第一轮',
+  'Davis Cup Qualifiers 2nd Rd': '戴维斯杯资格赛第二轮',
+  'Davis Cup Finals': '戴维斯杯决赛',
+
+  // ========== 大满贯 ==========
+  'Australian Open': '澳大利亚网球公开赛',
+  'Roland Garros': '法国网球公开赛',
+  'Wimbledon': '温布尔登网球锦标赛',
+  'The Championships, Wimbledon': '温布尔登网球锦标赛',
+  'US Open': '美国网球公开赛',
+
+  // ========== ATP/WTA 年终总决赛 ==========
+  'Nitto ATP Finals': 'ATP年终总决赛',
+  'WTA Finals Riyadh': 'WTA年终总决赛',
+
+  // ========== 一月 ==========
+  'Brisbane International presented by ANZ': '布里斯班国际赛',
+  'Brisbane International': '布里斯班国际赛',
+  'Bank of China Hong Kong Tennis Open': '香港网球公开赛',
+  'Adelaide International': '阿德莱德国际赛',
+  'ASB Classic': '奥克兰经典赛',
+  'Hobart International': '霍巴特国际赛',
+
+  // ========== 二月 ==========
+  'Open Occitanie': '奥克西塔尼公开赛',
+  'Nexo Dallas Open': '达拉斯公开赛',
+  'ABN AMRO Open': '鹿特丹公开赛',
+  'IEB+ Argentina Open': '阿根廷公开赛',
+  'Qatar ExxonMobil Open': '卡塔尔公开赛',
+  'Qatar TotalEnergies Open 2026': '卡塔尔公开赛',
+  'Rio Open presented by Claro': '里约公开赛',
+  'Delray Beach Open': '德拉伊海滩公开赛',
+  'Dubai Duty Free Tennis Championships': '迪拜网球锦标赛',
+  'Abierto Mexicano Telcel presentado por HSBC': '墨西哥公开赛',
+  'BCI Seguros Chile Open': '智利公开赛',
+  'Mubadala Abu Dhabi Open presented by Abu Dhabi Sports Council': '阿布扎比公开赛',
+  'Ostrava Open': '俄斯特拉发公开赛',
+  'Transylvania Open powered by Kaufland': '特兰西瓦尼亚公开赛',
+  'MÉRIDA OPEN': '梅里达公开赛',
+  'ATX Open': '奥斯汀公开赛',
+
+  // ========== 三月 ==========
+  'BNP Paribas Open': '印第安维尔斯大师赛',
+  'Miami Open presented by Itau': '迈阿密公开赛',
+  'Miami Open presented by Itaú': '迈阿密公开赛',
+  "Fayez Sarofim & Co. U.S. Men's Clay Court Championship": '美国男子红土锦标赛',
+  'Grand Prix Hassan II': '哈桑二世大奖赛',
+  'Tiriac Open presented by UniCredit Bank': '布加勒斯特公开赛',
+  'Credit One Charleston Open': '查尔斯顿公开赛',
+  'Copa Colsanitas Colsubsidio': '波哥大公开赛',
+
+  // ========== 四月 ==========
+  'Rolex Monte-Carlo Masters': '蒙特卡洛大师赛',
+  'Barcelona Open Banc Sabadell': '巴塞罗那公开赛',
+  'BMW Open by Bitpanda': '慕尼黑公开赛',
+  'Mutua Madrid Open': '马德里公开赛',
+  'Upper Austria Ladies Linz': '林茨公开赛',
+  'Porsche Tennis Grand Prix': '斯图加特大奖赛',
+  'Open Capfinances Rouen Métropole': '鲁昂公开赛',
+
+  // ========== 五月 ==========
+  "Internazionali BNL d'Italia": '意大利公开赛',
+  'Bitpanda Hamburg Open': '汉堡公开赛',
+  'Gonet Geneva Open': '日内瓦公开赛',
+  'Internationaux de Strasbourg presented by Mammotion': '斯特拉斯堡公开赛',
+  'Grand Prix Son Altesse Royale La Princesse Lalla Meryem': '拉巴特大奖赛',
+
+  // ========== 六月 ==========
+  'BOSS OPEN': '斯图加特公开赛',
+  'Libema Open': '斯海尔托亨博斯公开赛',
+  'Libéma Open': '斯海尔托亨博斯公开赛',
+  'HSBC Championships': '伦敦女王杯锦标赛',
+  'The HSBC Championships': '伦敦女王杯锦标赛',
+  'Terra Wortmann Open': '哈勒公开赛',
+  'Vanda Pharmaceuticals Mallorca Championships': '马洛卡锦标赛',
+  'Lexus Eastbourne Open': '伊斯特本公开赛',
+  'VANDA Pharmaceuticals Berlin Tennis Open': '柏林公开赛',
+  'Lexus Nottingham Open': '诺丁汉公开赛',
+  'Bad Homburg Open powered by Solarwatt': '巴特洪堡公开赛',
+
+  // ========== 七月 ==========
+  'Nordea Open': '巴斯塔德公开赛',
+  'EFG Swiss Open Gstaad': '加斯塔德公开赛',
+  'Plava Laguna Croatia Open Umag': '乌马格公开赛',
+  'Generali Open': '基茨比厄尔公开赛',
+  'Millennium Estoril Open': '埃斯托利尔公开赛',
+  'Mubadala DC Open': '华盛顿公开赛',
+  'Mifel Tennis Open by Telcel Oppo': '洛斯卡沃斯公开赛',
+  'UniCredit Iasi Open': '雅西公开赛',
+  'Vanda Pharmaceuticals Athens Open': '雅典公开赛',
+  'Livesport Prague Open 2026': '布拉格公开赛',
+  'MSC Hamburg Ladies Open': '汉堡女子公开赛',
+  'The Memphis Classic': '孟菲斯经典赛',
+
+  // ========== 八月 ==========
+  'National Bank Open presented by Rogers': '罗杰斯杯',
+  'Cincinnati Open': '辛辛那提大师赛',
+  'Winston-Salem Open': '温斯顿-塞勒姆公开赛',
+  'Abierto GNP Seguros': '蒙特雷公开赛',
+
+  // ========== 九月 ==========
+  'Chengdu Open': '成都公开赛',
+  'Lynk & Co Hangzhou Open': '杭州公开赛',
+  'China Open': '中国网球公开赛',
+  'Kinoshita Group Japan Open Tennis Championships': '日本网球公开赛（东京）',
+  'Kinoshita Group Japan Open': '日本网球公开赛（大阪）',
+  'Guadalajara Open presentado por Santander': '瓜达拉哈拉公开赛',
+  'SP Open': '圣保罗公开赛',
+  'Singapore Tennis Open': '新加坡网球公开赛',
+  'Korea Open': '韩国公开赛',
+
+  // ========== 十月 ==========
+  'Rolex Shanghai Masters': '上海大师赛',
+  'Almaty Open': '阿拉木图公开赛',
+  'Grand Prix Auvergne-Rhone-Alpes': '里昂公开赛',
+  'BNP Paribas Fortis European Open': '布鲁塞尔公开赛',
+  'Erste Bank Open': '维也纳公开赛',
+  'Swiss Indoors Basel': '巴塞尔室内赛',
+  'Wuhan Open': '武汉网球公开赛',
+  'Ningbo Open': '宁波网球公开赛',
+  'Toray Pan Pacific Open Tennis': '泛太平洋网球公开赛',
+  'Guangzhou Open': '广州网球公开赛',
+
+  // ========== 十一月 ==========
+  'Rolex Paris Masters': '巴黎大师赛',
+  'Bybit Stockholm Open': '斯德哥尔摩公开赛',
+  'Chennai Open': '金奈公开赛',
+  'Prudential Hong Kong Tennis Open': '香港网球公开赛'
+};
+
+
 const rawEvents = [
 // ATP 2026 赛季完整赛事数据
 // 数据格式: [巡回赛组织, 赛事名称, 举办城市, 国家, 级别, 场地信息, 开始日期, 结束日期]
@@ -395,12 +530,14 @@ const rawEvents = [
 const tennisEvents = rawEvents
   .map(([tour, eventName, city, country, level, surface, startDate, endDate], index) => {
     const surfaceDisplay = getSurfaceDisplay(tour, surface);
+    const eventNameCn = tournamentNameMap[eventName] || eventName;
     const cityCn = cityCnMap[city] || city;
     const countryCn = countryCnMap[country] || country;
     return {
       id: index + 1,
       tour,
       eventName,
+      eventNameCn,
       city,
       cityCn,
       country,

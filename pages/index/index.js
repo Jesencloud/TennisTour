@@ -166,11 +166,18 @@ function getSurfaceDisplayValue(event, lang = 'zh') {
     : event.surfaceEn || event.surface;
 }
 
+function getEventNameDisplayValue(event, lang = 'zh') {
+  return lang === 'zh'
+    ? event.eventNameCn || event.eventName
+    : event.eventName;
+}
+
 function createDisplayEventsById(events) {
   return events.reduce((displayEventsById, event) => {
     const icons = getEventIcons(event);
     displayEventsById[event.id] = DISPLAY_LANGS.reduce((displayByLang, lang) => {
       displayByLang[lang] = {
+        eventNameDisplay: getEventNameDisplayValue(event, lang),
         tourDisplay: getTourDisplayValue(event, lang),
         levelDisplay: getLevelDisplayValue(event, lang),
         tourLevelDisplay: getTourLevelDisplayValue(event, lang),
@@ -396,7 +403,7 @@ Page({
       type: 'calendar',
       title: t('addCalendar', lang),
       subtitle: t('calendarDisclaimer', lang),
-      eventName: event.eventName,
+      eventName: getEventNameDisplayValue(event, lang),
       eventDates: this.formatEventDates(event),
       tour: getTourDisplayValue(event, lang),
       level: getLevelDisplayValue(event, lang),
@@ -423,7 +430,7 @@ Page({
     }
 
     wx.addPhoneCalendar({
-      title: event.eventName,
+      title: getEventNameDisplayValue(event, lang),
       startTime,
       endTime,
       allDay: true,
