@@ -567,7 +567,7 @@ tennisEvents.forEach((event, index) => {
 });
 
 // ==================== Shared Calendar Index Generation ====================
-const GRAND_SLAM_DATE_BADGE = '👑';
+const GRAND_SLAM_DATE_BADGE = '🏆️';
 const DATE_LEVEL_LABELS = {
   '1000': '1000',
   '500': '500',

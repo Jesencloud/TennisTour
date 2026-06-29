@@ -21,7 +21,7 @@ function normalizeEventBadge(badge) {
 
   const text = String(label);
   let tone = 'other';
-  if (text === '👑') {
+  if (text === '🏆️' || text === '🏆') {
     tone = 'crown';
   } else if (text.indexOf('WTA') === 0) {
     tone = 'wta';
