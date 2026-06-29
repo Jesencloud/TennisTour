@@ -1,9 +1,9 @@
 <!-- components/calendar/calendar.wxml -->
 <view class="calendar-container">
   <view class="calendar-header">
-    <view class="nav-btn" bindtap="prevMonth">❮</view>
+    <view class="nav-btn" hover-class="nav-btn-hover" hover-stay-time="100" bindtap="prevMonth">❮</view>
     <view class="current-month" hover-class="current-month-hover" bindtap="openMonthPicker">{{monthNames[currentMonth]}} {{currentYear}}</view>
-    <view class="nav-btn" bindtap="nextMonth">❯</view>
+    <view class="nav-btn" hover-class="nav-btn-hover" hover-stay-time="100" bindtap="nextMonth">❯</view>
   </view>
 
   <view class="weekday-header">
