@@ -65,7 +65,8 @@
     </view>
     
     <view wx:else class="no-events">
-      <text>{{text.noEvents}}</text>
+      <view class="no-events-icon">🎾</view>
+      <text class="no-events-text">{{text.noEvents}}</text>
     </view>
   </view>
 
