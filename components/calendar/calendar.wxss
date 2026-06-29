@@ -132,11 +132,11 @@
 }
 
 .event-badge-wta {
-  color: #7e22ce;
+  color: #db2777;
 }
 
 .event-badge-atp {
-  color: #1d4ed8;
+  color: #0284c7;
 }
 
 .event-badge-crown {

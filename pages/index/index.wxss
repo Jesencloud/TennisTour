@@ -220,13 +220,13 @@
 }
 
 .tour-level-badge-atp {
-  background: #dbeafe;
-  color: #1d4ed8;
+  background: #e0f2fe;
+  color: #0284c7;
 }
 
 .tour-level-badge-wta {
-  background: #f3e8ff;
-  color: #7e22ce;
+  background: #fce7f3;
+  color: #db2777;
 }
 
 .surface-badge {

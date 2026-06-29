@@ -5,7 +5,7 @@
 const translations = {
   zh: {
     title: '网球赛程',
-    subtitle: 'ATP / WTA / 大满贯 2026',
+    subtitle: 'ATP / WTA / 大满贯 2026🎾️',
     navTitle: '网球赛程日历',
     today: '今天',
     events: '赛程',
@@ -46,7 +46,7 @@ const translations = {
   },
   en: {
     title: 'Tennis Calendar',
-    subtitle: 'ATP / WTA / Grand Slams 2026',
+    subtitle: 'ATP / WTA / Grand Slams 2026🎾️',
     navTitle: 'Tennis Calendar',
     today: 'Today',
     events: 'Events',
