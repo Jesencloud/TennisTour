@@ -234,13 +234,12 @@ const tournamentNameMap = {
   // ========== 大满贯 ==========
   'Australian Open': '澳大利亚网球公开赛',
   'Roland Garros': '法国网球公开赛',
-  'Wimbledon': '温布尔登网球锦标赛',
   'The Championships, Wimbledon': '温布尔登网球锦标赛',
   'US Open': '美国网球公开赛',
 
   // ========== ATP/WTA 年终总决赛 ==========
-  'Nitto ATP Finals': 'ATP年终总决赛',
-  'WTA Finals Riyadh': 'WTA年终总决赛',
+  'Nitto ATP Finals': 'ATP年终总决赛（都灵）',
+  'WTA Finals Riyadh': 'WTA年终总决赛（利雅得）',
 
   // ========== 一月 ==========
   'Brisbane International presented by ANZ': '布里斯班国际赛',
@@ -408,7 +407,7 @@ const rawEvents = [
   ['ATP', 'Terra Wortmann Open', 'Halle', 'Germany', '500', 'Grass-Outdoor', '2026-06-15', '2026-06-21'],
   ['ATP', 'Vanda Pharmaceuticals Mallorca Championships', 'Mallorca', 'Spain', '250', 'Grass-Outdoor', '2026-06-21', '2026-06-27'],
   ['ATP', 'Lexus Eastbourne Open', 'Eastbourne', 'United Kingdom', '250', 'Grass-Outdoor', '2026-06-22', '2026-06-27'],
-  ['ATP', 'Wimbledon', 'London', 'United Kingdom', 'Grand Slam', 'Grass-Outdoor', '2026-06-29', '2026-07-12'],
+  ['ATP', 'The Championships, Wimbledon', 'London', 'United Kingdom', 'Grand Slam', 'Grass-Outdoor', '2026-06-29', '2026-07-12'],
   
   // ========== 七月：红土+硬地过渡 ==========
   ['ATP', 'Nordea Open', 'Bastad', 'Sweden', '250', 'Clay-Outdoor', '2026-07-13', '2026-07-19'],
