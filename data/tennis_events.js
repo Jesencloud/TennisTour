@@ -678,19 +678,22 @@ function createEventIndexes(events) {
         const badge = getDateEventTypeLabel(event);
         if (!eventDates[date].badges.includes(badge)) {
           eventDates[date].badges.push(badge);
-          eventDates[date].badges.sort(sortDateBadges);
         }
       }
     });
   });
 
-  // Pre-sort events for each date to avoid sorting on every request
+  // Pre-sort events and badges for each date to avoid sorting on every iteration
   Object.keys(eventsByDate).forEach(date => {
     eventsByDate[date].sort((a, b) => (
       (TOUR_DISPLAY_ORDER[a.tour] || 9) - (TOUR_DISPLAY_ORDER[b.tour] || 9) ||
       getLevelPriority(a.level, 9) - getLevelPriority(b.level, 9) ||
       a.id - b.id
     ));
+
+    if (eventDates[date] && !eventDates[date].isGrandSlam) {
+      eventDates[date].badges.sort(sortDateBadges);
+    }
   });
 
   return { eventDates, eventsByDate };
