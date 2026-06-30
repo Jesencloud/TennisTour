@@ -139,6 +139,10 @@
   background: #db2777;
 }
 
+.event-row-mixed::before {
+  background: linear-gradient(to bottom, #0284c7, #db2777);
+}
+
 .event-row:last-child {
   border-bottom: none;
 }
@@ -248,6 +252,11 @@
 .tour-level-badge-wta {
   background: #fce7f3;
   color: #db2777;
+}
+
+.tour-level-badge-mixed {
+  background: #f3e8ff;
+  color: #7c3aed;
 }
 
 .surface-badge {

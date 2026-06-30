@@ -128,6 +128,9 @@ function getLevelPriority(level, fallback = 99) {
 }
 
 function getEventIcons(event) {
+  if (event.eventName === 'United Cup') {
+    return ['/assets/icons/unitedcup.svg'];
+  }
   const meta = getLevelMeta(event.level);
   if (!meta) return [];
 

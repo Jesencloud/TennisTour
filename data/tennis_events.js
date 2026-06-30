@@ -362,7 +362,7 @@ const rawEvents = [
 // ATP 2026 赛季完整赛事数据
 // 数据格式: [巡回赛组织, 赛事名称, 举办城市, 国家, 级别, 场地信息, 开始日期, 结束日期]
   // ========== 一月：澳大利亚赛季 ==========
-  ['ATP', 'United Cup', 'Perth + Sydney', 'Australia', 'Team', 'Hard-Outdoor', '2026-01-02', '2026-01-11'],
+  ['ATP/WTA', 'United Cup', 'Perth + Sydney', 'Australia', '500', 'Hard-Outdoor', '2026-01-02', '2026-01-11'],
   ['ATP', 'Brisbane International presented by ANZ', 'Brisbane', 'Australia', '250', 'Hard-Outdoor', '2026-01-04', '2026-01-11'],
   ['ATP', 'Bank of China Hong Kong Tennis Open', 'Hong Kong', 'China', '250', 'Hard-Outdoor', '2026-01-05', '2026-01-11'],
   ['ATP', 'Adelaide International', 'Adelaide', 'Australia', '250', 'Hard-Outdoor', '2026-01-12', '2026-01-17'],
@@ -450,7 +450,6 @@ const rawEvents = [
 
   
     // January 2026
-    ['WTA', 'United Cup', 'Perth + Sydney', 'Australia', '500', 'Hard', '2026-01-04', '2026-01-11'],
     ['WTA', 'Brisbane International', 'Brisbane', 'Australia', '500', 'Hard', '2026-01-04', '2026-01-11'],
     ['WTA', 'ASB Classic', 'Auckland', 'New Zealand', '250', 'Hard', '2026-01-05', '2026-01-11'],
     ['WTA', 'Adelaide International', 'Adelaide', 'Australia', '500', 'Hard', '2026-01-12', '2026-01-17'],
@@ -578,9 +577,10 @@ const DATE_LEVEL_LABELS = {
   davisCup: 'Davis'
 };
 const TOUR_DISPLAY_ORDER = {
-  WTA: 1,
-  ATP: 2,
-  'Grand Slam': 3
+  'ATP/WTA': 1,
+  WTA: 2,
+  ATP: 3,
+  'Grand Slam': 4
 };
 
 function parseDateParts(date) {
@@ -615,6 +615,9 @@ function getEventDateRange(event) {
 }
 
 function getDateEventTypeLabel(event) {
+  if (event.tour === 'ATP/WTA') {
+    return 'Mixed';
+  }
   const levelMeta = getLevelMeta(event.level);
   if (!levelMeta) return event.tour ? `${event.tour}${event.level}` : event.level;
   if (levelMeta.key === 'grandSlam') return GRAND_SLAM_DATE_BADGE;
@@ -624,6 +627,9 @@ function getDateEventTypeLabel(event) {
 }
 
 function getDateBadgeSortValue(label) {
+  if (label === 'Mixed') {
+    return [0, 0, label];
+  }
   const tourMatch = /^(WTA|ATP)/.exec(label);
   const tour = tourMatch ? tourMatch[1] : '';
   const level = tour ? label.slice(tour.length) : label;

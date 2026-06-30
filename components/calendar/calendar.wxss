@@ -154,6 +154,10 @@
   color: #0284c7;
 }
 
+.event-badge-mixed {
+  color: #7c3aed;
+}
+
 .event-badge-crown {
   font-size: 22rpx;
   line-height: 24rpx;

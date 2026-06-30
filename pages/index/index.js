@@ -47,22 +47,26 @@ const TOUR_DISPLAY_NAMES = {
   zh: {
     ATP: 'ATP 男子',
     WTA: 'WTA 女子',
-    'Grand Slam': 'Grand Slam 大满贯'
+    'Grand Slam': 'Grand Slam 大满贯',
+    'ATP/WTA': 'ATP/WTA 联合赛'
   },
   en: {
     ATP: 'ATP Men',
     WTA: 'WTA Women',
-    'Grand Slam': 'Grand Slam'
+    'Grand Slam': 'Grand Slam',
+    'ATP/WTA': 'ATP/WTA'
   }
 };
 const TOUR_LEVEL_DISPLAY_NAMES = {
   zh: {
     ATP: '男子',
-    WTA: '女子'
+    WTA: '女子',
+    'ATP/WTA': '联合'
   },
   en: {
     ATP: 'MEN',
-    WTA: 'WOMEN'
+    WTA: 'WOMEN',
+    'ATP/WTA': 'MIXED'
   }
 };
 

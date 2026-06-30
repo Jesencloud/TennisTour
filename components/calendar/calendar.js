@@ -27,6 +27,8 @@ function normalizeEventBadge(badge) {
     tone = 'wta';
   } else if (text.indexOf('ATP') === 0) {
     tone = 'atp';
+  } else if (text.indexOf('Mixed') === 0 || text.indexOf('ATP/WTA') === 0) {
+    tone = 'mixed';
   }
 
   return { label: text, tone };

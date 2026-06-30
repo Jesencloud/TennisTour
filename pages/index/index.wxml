@@ -32,7 +32,7 @@
     <view wx:if="{{selectedEvents.length > 0}}" class="event-list">
       <block wx:for="{{selectedEvents}}" wx:key="id">
         <view
-          class="event-row {{item.tour === 'ATP' ? 'event-row-atp' : item.tour === 'WTA' ? 'event-row-wta' : ''}}"
+          class="event-row {{item.tour === 'ATP' ? 'event-row-atp' : item.tour === 'WTA' ? 'event-row-wta' : 'event-row-mixed'}}"
           hover-class="event-row-hover"
           data-id="{{item.id}}"
           bindtap="onEventTap"
@@ -51,7 +51,7 @@
                 <view class="meta-icons">
                   <image wx:for="{{item.icons}}" wx:key="*this" wx:for-item="icon" class="meta-icon" src="{{icon}}" mode="aspectFit"></image>
                 </view>
-                <text class="row-badge tour-level-badge {{item.tour === 'ATP' ? 'tour-level-badge-atp' : 'tour-level-badge-wta'}}" user-select="{{true}}">{{item.tourLevelDisplay}}</text>
+                <text class="row-badge tour-level-badge {{item.tour === 'ATP' ? 'tour-level-badge-atp' : item.tour === 'WTA' ? 'tour-level-badge-wta' : 'tour-level-badge-mixed'}}" user-select="{{true}}">{{item.tourLevelDisplay}}</text>
               </block>
               <block wx:else>
                 <text class="row-badge tour-badge" user-select="{{true}}">{{item.tourDisplay}}</text>
