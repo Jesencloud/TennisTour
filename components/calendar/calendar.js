@@ -12,6 +12,7 @@ function getCalendarText(lang) {
   };
 }
 
+const badgeCache = {};
 function normalizeEventBadge(badge) {
   const label = typeof badge === 'object' && badge !== null
     ? badge.label
@@ -20,6 +21,10 @@ function normalizeEventBadge(badge) {
   if (!label) return null;
 
   const text = String(label);
+  if (badgeCache[text]) {
+    return badgeCache[text];
+  }
+
   let tone = 'other';
   if (text === '🏆️' || text === '🏆') {
     tone = 'crown';
@@ -31,7 +36,9 @@ function normalizeEventBadge(badge) {
     tone = 'mixed';
   }
 
-  return { label: text, tone };
+  const result = { label: text, tone };
+  badgeCache[text] = result;
+  return result;
 }
 
 Component({
@@ -165,6 +172,18 @@ Component({
           hasEvent: eventMarker.hasEvent,
           eventBadges: eventMarker.eventBadges,
           isPast: fullDate < todayDate
+        });
+      }
+
+      // Pad remaining empty days to guarantee exactly 42 days (6 rows * 7 days)
+      const totalDays = 42;
+      const currentLength = days.length;
+      for (let i = currentLength; i < totalDays; i++) {
+        days.push({
+          day: '',
+          fullDate: '',
+          dateKey: `empty-after-${year}-${month}-${i}`,
+          hasEvent: false
         });
       }
 
