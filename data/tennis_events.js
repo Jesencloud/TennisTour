@@ -572,7 +572,6 @@ const DATE_LEVEL_LABELS = {
   '500': '500',
   '250': '250',
   finals: 'Finals',
-  team: 'Team',
   laverCup: 'Laver',
   davisCup: 'Davis'
 };

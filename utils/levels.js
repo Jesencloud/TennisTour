@@ -75,18 +75,6 @@ const LEVEL_DEFINITIONS = [
     }
   },
   {
-    key: 'team',
-    aliases: ['Team'],
-    priority: 6,
-    display: {
-      zh: 'Team',
-      en: 'Team'
-    },
-    icons: {
-      ATP: '/assets/icons/atp-unitedcup.svg'
-    }
-  },
-  {
     key: 'laverCup',
     aliases: ['Laver Cup', 'Laver'],
     priority: 6,
