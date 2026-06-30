@@ -1,7 +1,17 @@
 const LEVEL_DEFINITIONS = [
   {
+    key: 'mixed',
+    aliases: ['Mixed'],
+    priority: 0,
+    display: {
+      zh: '混合',
+      en: 'Mixed'
+    },
+    icons: {}
+  },
+  {
     key: 'grandSlam',
-    aliases: ['Grand Slam', '大满贯'],
+    aliases: ['Grand Slam', '大满贯', '🏆️', '🏆'],
     priority: 1,
     display: {
       zh: '大满贯',
@@ -78,7 +88,7 @@ const LEVEL_DEFINITIONS = [
   },
   {
     key: 'laverCup',
-    aliases: ['Laver Cup'],
+    aliases: ['Laver Cup', 'Laver'],
     priority: 6,
     display: {
       zh: 'Laver Cup',
@@ -90,7 +100,7 @@ const LEVEL_DEFINITIONS = [
   },
   {
     key: 'davisCup',
-    aliases: ['Davis Cup', 'ITF'],
+    aliases: ['Davis Cup', 'ITF', 'Davis'],
     priority: 6,
     display: {
       zh: 'Davis Cup',

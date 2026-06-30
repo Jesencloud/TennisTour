@@ -627,17 +627,13 @@ function getDateEventTypeLabel(event) {
 }
 
 function getDateBadgeSortValue(label) {
-  if (label === 'Mixed') {
-    return [0, 0, label];
-  }
   const tourMatch = /^(WTA|ATP)/.exec(label);
   const tour = tourMatch ? tourMatch[1] : '';
   const level = tour ? label.slice(tour.length) : label;
-  const numericLevel = /^\d+$/.test(level) ? level : null;
 
   return [
-    TOUR_DISPLAY_ORDER[tour] || 9,
-    numericLevel ? getLevelPriority(numericLevel, 9) : 9,
+    tour ? (TOUR_DISPLAY_ORDER[tour] || 9) : (level === 'Mixed' ? 0 : 9),
+    getLevelPriority(level, 9),
     label
   ];
 }
