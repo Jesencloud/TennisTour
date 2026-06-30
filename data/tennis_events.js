@@ -631,8 +631,8 @@ function getDateBadgeSortValue(label) {
   const level = tour ? label.slice(tour.length) : label;
 
   return [
-    tour ? (TOUR_DISPLAY_ORDER[tour] || 9) : (level === 'Mixed' ? 0 : 9),
-    getLevelPriority(level, 9),
+    getLevelPriority(level, 99),
+    TOUR_DISPLAY_ORDER[tour] || 9,
     label
   ];
 }

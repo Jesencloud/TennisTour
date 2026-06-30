@@ -1,15 +1,5 @@
 const LEVEL_DEFINITIONS = [
   {
-    key: 'mixed',
-    aliases: ['Mixed'],
-    priority: 0,
-    display: {
-      zh: '混合',
-      en: 'Mixed'
-    },
-    icons: {}
-  },
-  {
     key: 'grandSlam',
     aliases: ['Grand Slam', '大满贯', '🏆️', '🏆'],
     priority: 1,
@@ -36,9 +26,43 @@ const LEVEL_DEFINITIONS = [
     }
   },
   {
+    key: 'mixed',
+    aliases: ['Mixed'],
+    priority: 3,
+    display: {
+      zh: '混合',
+      en: 'Mixed'
+    },
+    icons: {}
+  },
+  {
+    key: 'laverCup',
+    aliases: ['Laver Cup', 'Laver'],
+    priority: 4,
+    display: {
+      zh: 'Laver Cup',
+      en: 'Laver Cup'
+    },
+    icons: {
+      ATP: '/assets/icons/atp-lvr.svg'
+    }
+  },
+  {
+    key: 'davisCup',
+    aliases: ['Davis Cup', 'ITF', 'Davis'],
+    priority: 5,
+    display: {
+      zh: 'Davis Cup',
+      en: 'Davis Cup'
+    },
+    icons: {
+      ATP: '/assets/icons/atp-ITF.svg'
+    }
+  },
+  {
     key: '1000',
     aliases: ['1000', 'Masters 1000'],
-    priority: 3,
+    priority: 6,
     display: {
       zh: '1000',
       en: '1000'
@@ -51,7 +75,7 @@ const LEVEL_DEFINITIONS = [
   {
     key: '500',
     aliases: ['500'],
-    priority: 4,
+    priority: 7,
     display: {
       zh: '500',
       en: '500'
@@ -64,7 +88,7 @@ const LEVEL_DEFINITIONS = [
   {
     key: '250',
     aliases: ['250'],
-    priority: 5,
+    priority: 8,
     display: {
       zh: '250',
       en: '250'
@@ -72,30 +96,6 @@ const LEVEL_DEFINITIONS = [
     icons: {
       ATP: '/assets/icons/atp-250.svg',
       WTA: '/assets/icons/wta-250.svg'
-    }
-  },
-  {
-    key: 'laverCup',
-    aliases: ['Laver Cup', 'Laver'],
-    priority: 6,
-    display: {
-      zh: 'Laver Cup',
-      en: 'Laver Cup'
-    },
-    icons: {
-      ATP: '/assets/icons/atp-lvr.svg'
-    }
-  },
-  {
-    key: 'davisCup',
-    aliases: ['Davis Cup', 'ITF', 'Davis'],
-    priority: 6,
-    display: {
-      zh: 'Davis Cup',
-      en: 'Davis Cup'
-    },
-    icons: {
-      ATP: '/assets/icons/atp-ITF.svg'
     }
   }
 ];
