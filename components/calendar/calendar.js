@@ -175,18 +175,6 @@ Component({
         });
       }
 
-      // Pad remaining empty days to guarantee exactly 42 days (6 rows * 7 days)
-      const totalDays = 42;
-      const currentLength = days.length;
-      for (let i = currentLength; i < totalDays; i++) {
-        days.push({
-          day: '',
-          fullDate: '',
-          dateKey: `empty-after-${year}-${month}-${i}`,
-          hasEvent: false
-        });
-      }
-
       return days;
     },
 
