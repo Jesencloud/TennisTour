@@ -11,7 +11,8 @@
       bindchange="onMonthPickerChange"
     >
       <view class="current-month" hover-class="current-month-hover">
-        {{monthNames[currentMonth]}} {{currentYear}}
+        <block wx:if="{{lang === 'zh'}}">{{currentYear}}年{{currentMonth + 1}}月</block>
+        <block wx:else>{{currentYear}}-{{currentMonth + 1 < 10 ? '0' + (currentMonth + 1) : (currentMonth + 1)}}</block>
       </view>
     </picker>
     <view class="nav-btn" hover-class="nav-btn-hover" hover-stay-time="100" bindtap="nextMonth">❯</view>

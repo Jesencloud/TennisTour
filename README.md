@@ -9,8 +9,9 @@ and Grand Slam tournament schedule by date.
 - Show ATP, WTA, and Grand Slam events for the selected date
 - Display tournament name, city/country, level, surface, and date range
 - Include ATP and WTA year-end finals
-- Switch between Chinese and English UI labels
+- Switch between Chinese and English UI labels (with visual symmetry toggle)
 - Swipe left or right to move between months
+- Quickly jump to any month using the native WeChat Year-Month selector
 - Add selected tournaments to the phone calendar when supported by the device
 
 ## Data

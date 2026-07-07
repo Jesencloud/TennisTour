@@ -7,8 +7,7 @@ const SWIPER_DURATION_MS = 220;
 
 function getCalendarText(lang) {
   return {
-    weekdays: t('weekdays', lang),
-    months: t('months', lang)
+    weekdays: t('weekdays', lang)
   };
 }
 
@@ -68,8 +67,7 @@ Component({
     baseYear: 0,
     swiperCurrent: SWIPER_CENTER_INDEX,
     swiperDuration: SWIPER_DURATION_MS,
-    weekdays: [],
-    monthNames: []
+    weekdays: []
   },
 
   lifetimes: {
@@ -90,7 +88,6 @@ Component({
         selectedDate: initialDate,
         baseYear: currentYear,
         weekdays: locale.weekdays,
-        monthNames: locale.months,
         ...calendarState
       });
     }
@@ -343,8 +340,7 @@ Component({
     'lang': function(lang) {
       const locale = getCalendarText(lang);
       this.setData({
-        weekdays: locale.weekdays,
-        monthNames: locale.months
+        weekdays: locale.weekdays
       });
     }
   }
