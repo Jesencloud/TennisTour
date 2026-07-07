@@ -139,12 +139,13 @@ Component({
 
     createMonthDays(year, month, todayDate) {
       const firstDay = new Date(year, month, 1).getDay();
+      const emptyDaysBefore = (firstDay + 6) % 7;
       const daysInMonth = new Date(year, month + 1, 0).getDate();
       
       const days = [];
       
       // Keep every month at 6 rows so swiping never changes the calendar height.
-      for (let i = 0; i < firstDay; i++) {
+      for (let i = 0; i < emptyDaysBefore; i++) {
         days.push({
           day: '',
           fullDate: '',
