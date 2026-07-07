@@ -107,16 +107,19 @@
   font-size: 30rpx;
   color: #333;
   z-index: 1;
-}
-
-.day-item.selected {
-  background: #dcfce7;
+  width: 56rpx;
+  height: 56rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   border-radius: 50%;
+  transition: all 0.2s ease;
 }
 
 .day-item.selected .day-num {
-  font-weight: bold;
+  background: #dcfce7;
   color: #047857;
+  font-weight: bold;
 }
 
 .day-item.past .day-num {
