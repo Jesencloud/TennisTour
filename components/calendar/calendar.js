@@ -263,6 +263,8 @@ Component({
       const year = Number(parts[0]);
       const month = Number(parts[1]) - 1;
 
+      wx.vibrateShort({ type: 'light', fail: () => {} });
+
       const selectedDate = this.getAutoSelectedDate(year, month);
       this.setData({
         currentMonth: month,
@@ -311,10 +313,12 @@ Component({
     },
 
     prevMonth() {
+      wx.vibrateShort({ type: 'light', fail: () => {} });
       this.slideMonth(-1);
     },
 
     nextMonth() {
+      wx.vibrateShort({ type: 'light', fail: () => {} });
       this.slideMonth(1);
     },
 
