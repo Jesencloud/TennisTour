@@ -65,9 +65,7 @@ Component({
     currentMonth: 0,
     currentYear: 0,
     selectedDate: '',
-    showMonthPicker: false,
     baseYear: 0,
-    pickerYear: 0,
     swiperCurrent: SWIPER_CENTER_INDEX,
     swiperDuration: SWIPER_DURATION_MS,
     weekdays: [],
@@ -91,7 +89,6 @@ Component({
         currentMonth,
         selectedDate: initialDate,
         baseYear: currentYear,
-        pickerYear: currentYear,
         weekdays: locale.weekdays,
         monthNames: locale.months,
         ...calendarState
@@ -218,31 +215,7 @@ Component({
       }, () => this.restoreSwiperDuration());
     },
 
-    openMonthPicker() {
-      const { baseYear, currentYear } = this.data;
-      const pickerYear = currentYear === baseYear || currentYear === baseYear + 1
-        ? currentYear
-        : baseYear;
 
-      this.setData({
-        showMonthPicker: true,
-        pickerYear
-      });
-    },
-
-    closeMonthPicker() {
-      this.setData({ showMonthPicker: false });
-    },
-
-    stopMonthPickerTap() {},
-
-    selectPickerYear(e) {
-      const year = Number(e.currentTarget.dataset.year);
-      if (Number.isNaN(year)) return;
-      if (year !== this.data.baseYear && year !== this.data.baseYear + 1) return;
-
-      this.setData({ pickerYear: year });
-    },
 
     onCalendarSwiperFinish(e) {
       const current = e.detail && typeof e.detail.current === 'number'
@@ -288,20 +261,20 @@ Component({
       return this.formatDate(year, month, targetDay);
     },
 
-    selectMonth(e) {
-      const month = Number(e.currentTarget.dataset.month);
-      if (Number.isNaN(month)) return;
+    onMonthPickerChange(e) {
+      const val = e.detail.value;
+      const parts = val.split('-');
+      const year = Number(parts[0]);
+      const month = Number(parts[1]) - 1;
 
-      const currentYear = this.data.pickerYear;
-      const selectedDate = this.getAutoSelectedDate(currentYear, month);
+      const selectedDate = this.getAutoSelectedDate(year, month);
       this.setData({
         currentMonth: month,
-        currentYear,
+        currentYear: year,
         selectedDate,
-        showMonthPicker: false,
         swiperCurrent: SWIPER_CENTER_INDEX,
         swiperDuration: 0,
-        ...this.getCalendarState(currentYear, month)
+        ...this.getCalendarState(year, month)
       }, () => {
         this.calendarSwipeAnimating = false;
         this.restoreSwiperDuration();
