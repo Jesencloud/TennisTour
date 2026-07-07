@@ -6,8 +6,6 @@
       mode="date"
       fields="month"
       value="{{currentYear}}-{{currentMonth + 1 < 10 ? '0' + (currentMonth + 1) : (currentMonth + 1)}}"
-      start="{{baseYear}}-01"
-      end="{{baseYear + 1}}-12"
       bindchange="onMonthPickerChange"
     >
       <view class="current-month" hover-class="current-month-hover">

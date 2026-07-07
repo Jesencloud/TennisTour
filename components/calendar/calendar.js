@@ -64,7 +64,6 @@ Component({
     currentMonth: 0,
     currentYear: 0,
     selectedDate: '',
-    baseYear: 0,
     swiperCurrent: SWIPER_CENTER_INDEX,
     swiperDuration: SWIPER_DURATION_MS,
     weekdays: []
@@ -86,7 +85,6 @@ Component({
         currentYear,
         currentMonth,
         selectedDate: initialDate,
-        baseYear: currentYear,
         weekdays: locale.weekdays,
         ...calendarState
       });
