@@ -403,6 +403,8 @@ Page({
   },
 
   addEventToPhoneCalendar(event) {
+    if (this.addingToCalendar) return;
+    this.addingToCalendar = true;
     const lang = this.data.lang;
     const startTime = this.getCalendarTimestamp(event.startDate);
     const endTime = this.getCalendarAllDayEndTimestamp(event.endDate);
@@ -412,6 +414,7 @@ Page({
         title: t('invalidDate', lang),
         icon: 'none'
       });
+      this.addingToCalendar = false;
       return;
     }
 
@@ -437,6 +440,9 @@ Page({
           title: t(isCancel ? 'canceled' : 'failed', lang),
           icon: 'none'
         });
+      },
+      complete: () => {
+        this.addingToCalendar = false;
       }
     });
   },

@@ -1,4 +1,5 @@
 <!--pages/index/index.wxml-->
+<page-meta page-style="overflow: {{prompt.visible ? 'hidden' : 'visible'}}" />
 <view class="container {{lang === 'zh' ? 'lang-zh' : 'lang-en'}}">
   <view class="header">
     <view class="header-main">
