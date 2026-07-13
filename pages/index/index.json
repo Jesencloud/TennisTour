@@ -2,5 +2,9 @@
   "usingComponents": {
     "calendar": "/components/calendar/calendar"
   },
+  "backgroundColor": "#f8fafc",
+  "backgroundColorTop": "#f8fafc",
+  "backgroundColorBottom": "#f8fafc",
+  "backgroundTextStyle": "dark",
   "navigationBarTitleText": "网球赛程日历"
 }
