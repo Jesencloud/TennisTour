@@ -493,7 +493,7 @@ const rawEvents = [
     
     // July 2026
     ['WTA', 'UniCredit Iasi Open', 'Iasi', 'Romania', '250', 'Clay', '2026-07-13', '2026-07-19'],
-    ['WTA', 'Vanda Pharmaceuticals Athens Open', 'Athens', 'Greece', '250', 'Hard', '2026-07-20', '2026-07-26'],
+    ['WTA', 'Vanda Pharmaceuticals Athens Open', 'Athens', 'Greece', '250', 'Hard', '2026-07-13', '2026-07-19'],
     ['WTA', 'Livesport Prague Open 2026', 'Prague', 'Czech Republic', '250', 'Hard', '2026-07-20', '2026-07-26'],
     ['WTA', 'MSC Hamburg Ladies Open', 'Hamburg', 'Germany', '250', 'Clay', '2026-07-27', '2026-08-02'],
     ['WTA', 'Mubadala DC Open', 'Washington', 'United States', '500', 'Hard', '2026-07-27', '2026-08-02'],
