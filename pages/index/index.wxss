@@ -59,6 +59,7 @@
   align-items: center;
   gap: 20rpx;
   margin-bottom: 20rpx;
+  height: 56rpx;
 }
 
 .section-title {
