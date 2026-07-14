@@ -3,7 +3,8 @@
 // the published 2026 ATP Tour calendar; placeholder/TBD events are intentionally
 // excluded until city and tournament names are announced.
 
-const { getLevelPriority, getLevelMeta, levelOrder } = require('../utils/levels.js');
+const { getLevelPriority, getLevelMeta } = require('../utils/levels.js');
+const { parseDateParts } = require('../utils/date.js');
 
 const countryCnMap = {
   Argentina: '阿根廷',
@@ -40,7 +41,8 @@ const countryCnMap = {
   Switzerland: '瑞士',
   'United Arab Emirates': '阿联酋',
   'United Kingdom': '英国',
-  'United States': '美国'
+  'United States': '美国',
+  Multiple: '多地'
 };
 
 const cityCnMap = {
@@ -581,11 +583,7 @@ const TOUR_DISPLAY_ORDER = {
   'Grand Slam': 4
 };
 
-function parseDateParts(date) {
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return null;
-  const [year, month, day] = date.split('-').map(Number);
-  return { year, month, day };
-}
+// parseDateParts is now imported from utils/date.js
 
 function parseDateValue(date) {
   const parts = parseDateParts(date);
@@ -703,6 +701,5 @@ const { eventDates, eventsByDate } = createEventIndexes(tennisEvents);
 module.exports = {
   tennisEvents,
   eventDates,
-  eventsByDate,
-  levelOrder
+  eventsByDate
 };

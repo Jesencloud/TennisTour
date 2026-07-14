@@ -1,6 +1,7 @@
 // pages/index/index.js
 const { tennisEvents, eventsByDate } = require('../../data/tennis_events.js');
 const { t } = require('../../utils/i18n.js');
+const { parseDateParts } = require('../../utils/date.js');
 const {
   getEventIcons,
   getLevelDisplay: getLevelLabel,
@@ -81,11 +82,7 @@ function getText(lang) {
   }, {});
 }
 
-function parseDateParts(date) {
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return null;
-  const [year, month, day] = date.split('-').map(Number);
-  return { year, month, day };
-}
+// parseDateParts is now imported from utils/date.js
 
 
 
