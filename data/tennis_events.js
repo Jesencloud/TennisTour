@@ -3,8 +3,9 @@
 // the published 2026 ATP Tour calendar; placeholder/TBD events are intentionally
 // excluded until city and tournament names are announced.
 
-const { getLevelPriority, getLevelMeta } = require('../utils/levels.js');
-const { parseDateParts } = require('../utils/date.js');
+const { getLevelPriority } = require('../utils/levels.js');
+const { assignStableEventIds } = require('../utils/event-id.js');
+const { createEventIndexes, createEventsById } = require('../utils/event-indexes.js');
 
 const countryCnMap = {
   Argentina: '阿根廷',
@@ -561,145 +562,15 @@ const tennisEvents = rawEvents
     a.eventName.localeCompare(b.eventName)
   ));
 
-// Assign sequential IDs without creating intermediate shallow copies
-tennisEvents.forEach((event, index) => {
-  event.id = index + 1;
-});
-
-// ==================== Shared Calendar Index Generation ====================
-const GRAND_SLAM_DATE_BADGE = '🏆️';
-const DATE_LEVEL_LABELS = {
-  '1000': '1000',
-  '500': '500',
-  '250': '250',
-  finals: 'Finals',
-  laverCup: 'Laver',
-  davisCup: 'Davis'
-};
-const TOUR_DISPLAY_ORDER = {
-  'ATP/WTA': 1,
-  WTA: 2,
-  ATP: 3,
-  'Grand Slam': 4
-};
-
-// parseDateParts is now imported from utils/date.js
-
-function parseDateValue(date) {
-  const parts = parseDateParts(date);
-  if (!parts) return null;
-  return new Date(Date.UTC(parts.year, parts.month - 1, parts.day));
-}
-
-function formatDateValue(date) {
-  const y = date.getUTCFullYear();
-  const m = String(date.getUTCMonth() + 1).padStart(2, '0');
-  const d = String(date.getUTCDate()).padStart(2, '0');
-  return `${y}-${m}-${d}`;
-}
-
-function getEventDateRange(event) {
-  const startDate = parseDateValue(event.startDate);
-  const endDate = parseDateValue(event.endDate || event.startDate);
-  if (!startDate || !endDate) return [];
-
-  const dates = [];
-  for (let d = startDate.getTime(); d <= endDate.getTime(); d += 86400000) {
-    dates.push(formatDateValue(new Date(d)));
-  }
-  return dates;
-}
-
-function getDateEventTypeLabel(event) {
-  if (event.tour === 'ATP/WTA') {
-    return 'Mixed';
-  }
-  const levelMeta = getLevelMeta(event.level);
-  if (!levelMeta) return event.tour ? `${event.tour}${event.level}` : event.level;
-  if (levelMeta.key === 'grandSlam') return GRAND_SLAM_DATE_BADGE;
-
-  const levelLabel = DATE_LEVEL_LABELS[levelMeta.key] || event.level;
-  return event.tour ? `${event.tour}${levelLabel}` : levelLabel;
-}
-
-function getDateBadgeSortValue(label) {
-  const tourMatch = /^(WTA|ATP)/.exec(label);
-  const tour = tourMatch ? tourMatch[1] : '';
-  const level = tour ? label.slice(tour.length) : label;
-
-  return [
-    getLevelPriority(level, 99),
-    TOUR_DISPLAY_ORDER[tour] || 9,
-    label
-  ];
-}
-
-function sortDateBadges(a, b) {
-  const aParts = getDateBadgeSortValue(a);
-  const bParts = getDateBadgeSortValue(b);
-  return (
-    aParts[0] - bParts[0] ||
-    aParts[1] - bParts[1] ||
-    aParts[2].localeCompare(bParts[2])
-  );
-}
-
-function createEventIndexes(events) {
-  const eventDates = {};
-  const eventsByDate = {};
-
-  events.forEach(event => {
-    const levelMeta = getLevelMeta(event.level);
-    const isGrandSlam = levelMeta && levelMeta.key === 'grandSlam';
-
-    getEventDateRange(event).forEach(date => {
-      if (!eventsByDate[date]) {
-        eventsByDate[date] = [];
-      }
-      eventsByDate[date].push(event);
-
-      if (!eventDates[date]) {
-        eventDates[date] = {
-          hasEvent: true,
-          badges: []
-        };
-      }
-
-      if (isGrandSlam) {
-        eventDates[date].isGrandSlam = true;
-        eventDates[date].badges = [GRAND_SLAM_DATE_BADGE];
-        return;
-      }
-
-      if (!eventDates[date].isGrandSlam) {
-        const badge = getDateEventTypeLabel(event);
-        if (!eventDates[date].badges.includes(badge)) {
-          eventDates[date].badges.push(badge);
-        }
-      }
-    });
-  });
-
-  // Pre-sort events and badges for each date to avoid sorting on every iteration
-  Object.keys(eventsByDate).forEach(date => {
-    eventsByDate[date].sort((a, b) => (
-      (TOUR_DISPLAY_ORDER[a.tour] || 9) - (TOUR_DISPLAY_ORDER[b.tour] || 9) ||
-      getLevelPriority(a.level, 9) - getLevelPriority(b.level, 9) ||
-      a.id - b.id
-    ));
-
-    if (eventDates[date] && !eventDates[date].isGrandSlam) {
-      eventDates[date].badges.sort(sortDateBadges);
-    }
-  });
-
-  return { eventDates, eventsByDate };
-}
+// Stable ids based on tour + name + startDate (not list position)
+assignStableEventIds(tennisEvents);
 
 const { eventDates, eventsByDate } = createEventIndexes(tennisEvents);
+const eventsById = createEventsById(tennisEvents);
 
 module.exports = {
   tennisEvents,
+  eventsById,
   eventDates,
   eventsByDate
 };

@@ -1,12 +1,14 @@
 // pages/index/index.js
-const { tennisEvents, eventsByDate } = require('../../data/tennis_events.js');
+const { tennisEvents, eventsByDate, eventsById } = require('../../data/tennis_events.js');
 const { t } = require('../../utils/i18n.js');
-const { parseDateParts } = require('../../utils/date.js');
+const {
+  formatLocalDate,
+  getLocalMidnightTimestamp,
+  getLocalAllDayEndTimestamp
+} = require('../../utils/date.js');
 const {
   getEventIcons,
-  getLevelDisplay: getLevelLabel,
-  getLevelMeta,
-  getLevelPriority
+  getLevelDisplay: getLevelLabel
 } = require('../../utils/levels.js');
 
 const PAGE_TEXT_KEYS = [
@@ -44,6 +46,7 @@ const DEFAULT_PROMPT = {
 
 const CALENDAR_ALARM_OFFSET = 0;
 const DISPLAY_LANGS = ['zh', 'en'];
+const LANG_STORAGE_KEY = 'tennisTourLang';
 const TOUR_DISPLAY_NAMES = {
   zh: {
     ATP: 'ATP 男子',
@@ -82,10 +85,6 @@ function getText(lang) {
   }, {});
 }
 
-// parseDateParts is now imported from utils/date.js
-
-
-
 function getTourDisplayValue(event, lang = 'zh') {
   const names = TOUR_DISPLAY_NAMES[lang] || TOUR_DISPLAY_NAMES.zh;
   return names[event.tour] || event.tour;
@@ -120,6 +119,36 @@ function getEventNameSecondaryValue(event, lang = 'zh') {
     : '';
 }
 
+function getLocationDisplayValue(event, lang = 'zh') {
+  return lang === 'zh'
+    ? `${event.cityCn}，${event.countryCn}`
+    : `${event.city}, ${event.country}`;
+}
+
+function getFlaggedLocationDisplayValue(event, lang = 'zh') {
+  return `${getLocationDisplayValue(event, lang)} ${event.flag}`;
+}
+
+function isValidLang(lang) {
+  return lang === 'zh' || lang === 'en';
+}
+
+function loadStoredLang() {
+  try {
+    const lang = wx.getStorageSync(LANG_STORAGE_KEY);
+    return isValidLang(lang) ? lang : null;
+  } catch (e) {
+    return null;
+  }
+}
+
+function saveStoredLang(lang) {
+  if (!isValidLang(lang)) return;
+  try {
+    wx.setStorageSync(LANG_STORAGE_KEY, lang);
+  } catch (e) {}
+}
+
 function createDisplayEventsById(events) {
   return events.reduce((displayEventsById, event) => {
     const icons = getEventIcons(event);
@@ -131,6 +160,8 @@ function createDisplayEventsById(events) {
         levelDisplay: getLevelDisplayValue(event, lang),
         tourLevelDisplay: getTourLevelDisplayValue(event, lang),
         surfaceDisplay: getSurfaceDisplayValue(event, lang),
+        locationDisplay: getLocationDisplayValue(event, lang),
+        locationFlaggedDisplay: getFlaggedLocationDisplayValue(event, lang),
         icons
       };
       return displayByLang;
@@ -140,6 +171,12 @@ function createDisplayEventsById(events) {
 }
 
 const displayEventsById = createDisplayEventsById(tennisEvents);
+
+function getEventDisplay(eventId, lang = 'zh') {
+  const displayByLang = displayEventsById[eventId];
+  if (!displayByLang) return null;
+  return displayByLang[lang] || displayByLang.zh || null;
+}
 
 Page({
   todayDate: '',
@@ -154,9 +191,11 @@ Page({
   },
 
   onLoad(options) {
-    let lang = this.data.lang;
-    if (options && options.lang && (options.lang === 'zh' || options.lang === 'en')) {
+    // Priority: URL param (share link) > stored preference > default zh
+    let lang = loadStoredLang() || this.data.lang;
+    if (options && isValidLang(options.lang)) {
       lang = options.lang;
+      saveStoredLang(lang);
     }
 
     const todayDate = this.getTodayDate();
@@ -194,50 +233,37 @@ Page({
     }
   },
 
-  onShareAppMessage() {
+  getShareTitle() {
     const { lang, selectedDate, selectedEvents } = this.data;
-    let title = '';
+    const hasEvents = selectedEvents && selectedEvents.length > 0;
+
     if (lang === 'zh') {
-      if (selectedEvents && selectedEvents.length > 0) {
+      if (hasEvents) {
         const eventNames = selectedEvents.map(e => e.eventNameDisplay).slice(0, 2).join('、');
-        title = `网球赛程日历 | ${selectedDate} 有 ${eventNames} 等赛事`;
-      } else {
-        title = '网球赛程日历 - 全球 ATP / WTA / 大满贯赛事日程指南';
+        return `网球赛程日历 | ${selectedDate} 有 ${eventNames} 等赛事`;
       }
-    } else {
-      if (selectedEvents && selectedEvents.length > 0) {
-        const eventNames = selectedEvents.map(e => e.eventNameDisplay).slice(0, 2).join(', ');
-        title = `Tennis Calendar | ${eventNames} on ${selectedDate}`;
-      } else {
-        title = 'Tennis Calendar - ATP / WTA / Grand Slams Schedule Guide';
-      }
+      return '网球赛程日历 - 全球 ATP / WTA / 大满贯赛事日程指南';
     }
+
+    if (hasEvents) {
+      const eventNames = selectedEvents.map(e => e.eventNameDisplay).slice(0, 2).join(', ');
+      return `Tennis Calendar | ${eventNames} on ${selectedDate}`;
+    }
+    return 'Tennis Calendar - ATP / WTA / Grand Slams Schedule Guide';
+  },
+
+  onShareAppMessage() {
+    const { lang, selectedDate } = this.data;
     return {
-      title,
+      title: this.getShareTitle(),
       path: `/pages/index/index?lang=${lang}&date=${selectedDate}`
     };
   },
 
   onShareTimeline() {
-    const { lang, selectedDate, selectedEvents } = this.data;
-    let title = '';
-    if (lang === 'zh') {
-      if (selectedEvents && selectedEvents.length > 0) {
-        const eventNames = selectedEvents.map(e => e.eventNameDisplay).slice(0, 2).join('、');
-        title = `网球赛程日历 | ${selectedDate} 有 ${eventNames} 等赛事`;
-      } else {
-        title = '网球赛程日历 - 全球 ATP / WTA / 大满贯赛事日程指南';
-      }
-    } else {
-      if (selectedEvents && selectedEvents.length > 0) {
-        const eventNames = selectedEvents.map(e => e.eventNameDisplay).slice(0, 2).join(', ');
-        title = `Tennis Calendar | ${eventNames} on ${selectedDate}`;
-      } else {
-        title = 'Tennis Calendar - ATP / WTA / Grand Slams Schedule Guide';
-      }
-    }
+    const { lang, selectedDate } = this.data;
     return {
-      title,
+      title: this.getShareTitle(),
       query: `lang=${lang}&date=${selectedDate}`
     };
   },
@@ -245,6 +271,7 @@ Page({
   toggleLang() {
     const nextLang = this.data.lang === 'zh' ? 'en' : 'zh';
     wx.vibrateShort({ type: 'light', fail: () => {} });
+    saveStoredLang(nextLang);
     this.setData({
       lang: nextLang,
       text: getText(nextLang),
@@ -260,14 +287,7 @@ Page({
   },
 
   getTodayDate() {
-    return this.formatDate(new Date());
-  },
-
-  formatDate(date) {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
+    return formatLocalDate(new Date());
   },
 
   getEventsForDate(date) {
@@ -276,11 +296,7 @@ Page({
 
   getDisplayEventsForDate(date, lang = this.data.lang) {
     return this.getEventsForDate(date).map(event => (
-      Object.assign(
-        {},
-        event,
-        displayEventsById[event.id][lang] || displayEventsById[event.id].zh
-      )
+      Object.assign({}, event, getEventDisplay(event.id, lang) || {})
     ));
   },
 
@@ -301,7 +317,7 @@ Page({
   },
 
   getEventById(id) {
-    return tennisEvents.find(event => event.id === id);
+    return eventsById[id] || null;
   },
 
   formatDisplayDate(dateStr) {
@@ -323,48 +339,28 @@ Page({
   },
 
   getCalendarTimestamp(date) {
-    const parts = parseDateParts(date);
-    if (!parts) return null;
-    const calendarDate = new Date(parts.year, parts.month - 1, parts.day, 0, 0, 0);
-    return Math.floor(calendarDate.getTime() / 1000);
+    return getLocalMidnightTimestamp(date);
   },
 
   getCalendarAllDayEndTimestamp(date) {
-    const parts = parseDateParts(date);
-    if (!parts) return null;
-    const nextDay = new Date(parts.year, parts.month - 1, parts.day + 1, 0, 0, 0);
-    return Math.floor(nextDay.getTime() / 1000);
+    return getLocalAllDayEndTimestamp(date);
   },
 
-  getEventLocation(event) {
-    if (this.data.lang === 'zh') {
-      return `${event.cityCn}，${event.countryCn}`;
-    }
-
-    return `${event.city}, ${event.country}`;
-  },
-
-  getFlaggedEventLocation(event) {
-    return `${this.getEventLocation(event)} ${event.flag}`;
-  },
-
-  getCalendarDescription(event) {
-    const lang = this.data.lang;
+  getCalendarDescription(event, display, lang) {
     return [
       `${t('labelEventDates', lang)}: ${this.formatEventDates(event)}`,
-      `${t('labelTour', lang)}: ${getTourDisplayValue(event, lang)}`,
-      `${t('labelLevel', lang)}: ${getLevelDisplayValue(event, lang)}`,
-      `${t('labelSurface', lang)}: ${getSurfaceDisplayValue(event, lang)}`,
-      `${t('labelLocation', lang)}: ${this.getFlaggedEventLocation(event)}`
+      `${t('labelTour', lang)}: ${display.tourDisplay}`,
+      `${t('labelLevel', lang)}: ${display.levelDisplay}`,
+      `${t('labelSurface', lang)}: ${display.surfaceDisplay}`,
+      `${t('labelLocation', lang)}: ${display.locationFlaggedDisplay}`
     ].join('\n');
   },
 
-  onEventLongPress() {
-    // Empty handler to natively suppress tap event on long press
-  },
+  // Suppresses the subsequent tap after a long-press on an event row.
+  onEventLongPress() {},
 
   onEventTap(e) {
-    const id = Number(e.currentTarget.dataset.id);
+    const id = e.currentTarget.dataset.id;
     const event = this.getEventById(id);
     if (!event) return;
 
@@ -381,17 +377,20 @@ Page({
       return;
     }
 
+    const display = getEventDisplay(event.id, lang);
+    if (!display) return;
+
     this.openPrompt({
       type: 'calendar',
       title: t('addCalendar', lang),
       subtitle: t('calendarDisclaimer', lang),
-      eventName: getEventNameDisplayValue(event, lang),
-      eventNameSecondary: getEventNameSecondaryValue(event, lang),
+      eventName: display.eventNameDisplay,
+      eventNameSecondary: display.eventNameSecondary,
       eventDates: this.formatEventDates(event),
-      tour: getTourDisplayValue(event, lang),
-      level: getLevelDisplayValue(event, lang),
-      surface: getSurfaceDisplayValue(event, lang),
-      location: this.getFlaggedEventLocation(event),
+      tour: display.tourDisplay,
+      level: display.levelDisplay,
+      surface: display.surfaceDisplay,
+      location: display.locationFlaggedDisplay,
       confirmText: t('add', lang),
       cancelText: t('cancel', lang),
       showCancel: true,
@@ -403,10 +402,11 @@ Page({
     if (this.addingToCalendar) return;
     this.addingToCalendar = true;
     const lang = this.data.lang;
+    const display = getEventDisplay(event.id, lang);
     const startTime = this.getCalendarTimestamp(event.startDate);
     const endTime = this.getCalendarAllDayEndTimestamp(event.endDate);
 
-    if (!startTime || !endTime || endTime < startTime) {
+    if (!display || !startTime || !endTime || endTime < startTime) {
       wx.showToast({
         title: t('invalidDate', lang),
         icon: 'none'
@@ -416,12 +416,12 @@ Page({
     }
 
     wx.addPhoneCalendar({
-      title: getEventNameDisplayValue(event, lang),
+      title: display.eventNameDisplay,
       startTime,
       endTime,
       allDay: true,
-      location: this.getEventLocation(event),
-      description: this.getCalendarDescription(event),
+      location: display.locationDisplay,
+      description: this.getCalendarDescription(event, display, lang),
       alarmOffset: CALENDAR_ALARM_OFFSET,
       success: () => {
         wx.vibrateShort({ type: 'medium', fail: () => {} });

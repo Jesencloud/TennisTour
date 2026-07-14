@@ -161,13 +161,6 @@
   white-space: nowrap;
 }
 
-.row-flag {
-  margin-right: 10rpx;
-  font-size: 32rpx;
-  flex-shrink: 0;
-  white-space: nowrap;
-}
-
 .row-main {
   flex: 1;
   min-width: 0;
@@ -283,28 +276,12 @@
   box-shadow: 0 4rpx 10rpx rgba(0,0,0,0.03);
 }
 
-.no-events-icon {
-  font-size: 72rpx;
-  margin-bottom: 20rpx;
-  opacity: 0.8;
-  animation: floatBall 3s ease-in-out infinite;
-}
-
 .no-events-text {
   color: #94a3b8;
   font-size: 26rpx;
   text-align: center;
   line-height: 1.6;
   max-width: 480rpx;
-}
-
-@keyframes floatBall {
-  0%, 100% {
-    transform: translateY(0) scale(1);
-  }
-  50% {
-    transform: translateY(-10rpx) scale(1.05);
-  }
 }
 
 .prompt-mask {
@@ -375,10 +352,6 @@
   font-weight: 600;
   color: #333;
   word-break: break-word;
-}
-
-.prompt-event-flag {
-  margin-right: 10rpx;
 }
 
 .prompt-event::before {

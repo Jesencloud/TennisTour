@@ -117,13 +117,13 @@
 }
 
 .day-item.selected .day-num {
-  background: #dcfce7;
+  background: #bbf7d0;
   color: #047857;
   font-weight: bold;
 }
 
 .day-item.past .day-num {
-  color: #b8b8b8;
+  color: #94a3b8;
 }
 
 .event-badge {
@@ -171,7 +171,7 @@
 }
 
 .day-item.past .event-badge {
-  opacity: 0.42;
+  opacity: 0.65;
 }
 
 

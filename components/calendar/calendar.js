@@ -1,6 +1,12 @@
 // components/calendar/calendar.js
 const { t } = require('../../utils/i18n.js');
 const { eventDates } = require('../../data/tennis_events.js');
+const {
+  formatLocalYMD,
+  parseLocalDate,
+  getTodayLocal,
+  getShiftedMonth
+} = require('../../utils/date.js');
 
 const SWIPER_CENTER_INDEX = 1;
 const SWIPER_DURATION_MS = 220;
@@ -42,6 +48,8 @@ function normalizeEventBadge(badge) {
 
 Component({
   calendarSwipeAnimating: false,
+  monthDaysCache: null,
+  monthDaysCacheToday: '',
 
   properties: {
     lang: {
@@ -71,11 +79,15 @@ Component({
 
   lifetimes: {
     attached() {
-      const now = new Date();
-      const defaultDate = this.formatDate(now.getFullYear(), now.getMonth(), now.getDate());
+      this.monthDaysCache = Object.create(null);
+      this.monthDaysCacheToday = '';
+
+      const todayDate = getTodayLocal();
+      const parsedToday = parseLocalDate(todayDate);
+      const defaultDate = todayDate;
       const initialDate = this.properties.selectedDate || defaultDate;
-      const parsed = this.parseDate(initialDate) || { year: now.getFullYear(), month: now.getMonth(), day: now.getDate() };
-      
+      const parsed = parseLocalDate(initialDate) || parsedToday;
+
       const currentYear = parsed.year;
       const currentMonth = parsed.month;
       const locale = getCalendarText(this.data.lang);
@@ -113,24 +125,36 @@ Component({
       };
     },
 
+    getCachedMonthDays(year, month, todayDate) {
+      if (!this.monthDaysCache || this.monthDaysCacheToday !== todayDate) {
+        this.monthDaysCache = Object.create(null);
+        this.monthDaysCacheToday = todayDate;
+      }
+
+      const key = `${year}-${month}`;
+      if (!this.monthDaysCache[key]) {
+        this.monthDaysCache[key] = this.createMonthDays(year, month, todayDate);
+      }
+      return this.monthDaysCache[key];
+    },
+
     getCalendarState(currentYear, currentMonth) {
-      const now = new Date();
-      const todayDate = this.formatDate(now.getFullYear(), now.getMonth(), now.getDate());
-      const prevMonth = this.getShiftedMonth(currentYear, currentMonth, -1);
-      const nextMonth = this.getShiftedMonth(currentYear, currentMonth, 1);
+      const todayDate = getTodayLocal();
+      const prevMonth = getShiftedMonth(currentYear, currentMonth, -1);
+      const nextMonth = getShiftedMonth(currentYear, currentMonth, 1);
 
       const monthPanels = [
         {
           key: `prev-${prevMonth.year}-${prevMonth.month}`,
-          days: this.createMonthDays(prevMonth.year, prevMonth.month, todayDate)
+          days: this.getCachedMonthDays(prevMonth.year, prevMonth.month, todayDate)
         },
         {
           key: `current-${currentYear}-${currentMonth}`,
-          days: this.createMonthDays(currentYear, currentMonth, todayDate)
+          days: this.getCachedMonthDays(currentYear, currentMonth, todayDate)
         },
         {
           key: `next-${nextMonth.year}-${nextMonth.month}`,
-          days: this.createMonthDays(nextMonth.year, nextMonth.month, todayDate)
+          days: this.getCachedMonthDays(nextMonth.year, nextMonth.month, todayDate)
         }
       ];
 
@@ -141,10 +165,10 @@ Component({
       const firstDay = new Date(year, month, 1).getDay();
       const emptyDaysBefore = (firstDay + 6) % 7;
       const daysInMonth = new Date(year, month + 1, 0).getDate();
-      
+
       const days = [];
-      
-      // Keep every month at 6 rows so swiping never changes the calendar height.
+
+      // Leading empties; fixed viewport height keeps swipe layout stable.
       for (let i = 0; i < emptyDaysBefore; i++) {
         days.push({
           day: '',
@@ -153,10 +177,9 @@ Component({
           hasEvent: false
         });
       }
-      
-      // Fill current month days
+
       for (let i = 1; i <= daysInMonth; i++) {
-        const fullDate = this.formatDate(year, month, i);
+        const fullDate = formatLocalYMD(year, month, i);
         const eventMarker = this.normalizeEventMarker(eventDates[fullDate]);
         days.push({
           day: i,
@@ -171,34 +194,8 @@ Component({
       return days;
     },
 
-    formatDate(year, month, day) {
-      const m = month + 1;
-      const mm = m < 10 ? '0' + m : m;
-      const dd = day < 10 ? '0' + day : day;
-      return `${year}-${mm}-${dd}`;
-    },
-
-    parseDate(date) {
-      const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(date);
-      if (!match) return null;
-
-      return {
-        year: Number(match[1]),
-        month: Number(match[2]) - 1,
-        day: Number(match[3])
-      };
-    },
-
-    getShiftedMonth(year, month, offset) {
-      const date = new Date(year, month + offset, 1);
-      return {
-        year: date.getFullYear(),
-        month: date.getMonth()
-      };
-    },
-
     goToDate(date) {
-      const parsedDate = this.parseDate(date);
+      const parsedDate = parseLocalDate(date);
       if (!parsedDate) return;
 
       this.setData({
@@ -210,8 +207,6 @@ Component({
         ...this.getCalendarState(parsedDate.year, parsedDate.month)
       }, () => this.restoreSwiperDuration());
     },
-
-
 
     onCalendarSwiperFinish(e) {
       const current = e.detail && typeof e.detail.current === 'number'
@@ -243,7 +238,7 @@ Component({
     getAutoSelectedDate(year, month) {
       let day = 1;
       const currentSelected = this.data.selectedDate;
-      const parsed = this.parseDate(currentSelected);
+      const parsed = parseLocalDate(currentSelected);
       if (parsed) {
         day = parsed.day;
       } else {
@@ -254,7 +249,7 @@ Component({
       const daysInMonth = new Date(year, month + 1, 0).getDate();
       // If the target month is shorter, clamp to its last day.
       const targetDay = Math.min(day, daysInMonth);
-      return this.formatDate(year, month, targetDay);
+      return formatLocalYMD(year, month, targetDay);
     },
 
     onMonthPickerChange(e) {
@@ -281,7 +276,7 @@ Component({
     },
 
     changeMonth(offset, options = {}) {
-      const shiftedMonth = this.getShiftedMonth(
+      const shiftedMonth = getShiftedMonth(
         this.data.currentYear,
         this.data.currentMonth,
         offset
@@ -325,9 +320,9 @@ Component({
     selectDay(e) {
       const { date } = e.currentTarget.dataset;
       if (!date) return;
-      
+
       wx.vibrateShort({ type: 'light', fail: () => {} });
-      
+
       this.setData({ selectedDate: date });
       this.triggerEvent('selectdate', { date });
     },
