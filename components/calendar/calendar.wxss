@@ -76,7 +76,7 @@
   display: grid;
   grid-template-columns: repeat(7, 1fr);
   grid-auto-rows: 100rpx;
-  align-content: flex-start;
+  align-content: space-between;
 }
 
 .month-panel {
