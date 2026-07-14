@@ -48,6 +48,10 @@
         "type": "file"
       },
       {
+        "value":".mimocode",
+        "type": "folder"
+      },
+      {
         "value": ".stfolder",
         "type": "folder"
       },
