@@ -12,12 +12,21 @@ function pad2(value) {
   return value < 10 ? `0${value}` : String(value);
 }
 
+function isValidDate(year, month, day) {
+  if (month < 1 || month > 12 || day < 1 || day > 31) return false;
+  const date = new Date(Date.UTC(year, month - 1, day));
+  return date.getUTCFullYear() === year &&
+    date.getUTCMonth() === month - 1 &&
+    date.getUTCDate() === day;
+}
+
 /**
  * Parse YYYY-MM-DD into { year, month, day } where month is 1-12.
  */
 function parseDateParts(date) {
   if (!DATE_RE.test(date)) return null;
   const [year, month, day] = date.split('-').map(Number);
+  if (!isValidDate(year, month, day)) return null;
   return { year, month, day };
 }
 
@@ -100,6 +109,7 @@ function getLocalAllDayEndTimestamp(date) {
 }
 
 module.exports = {
+  isValidDate,
   parseDateParts,
   parseLocalDate,
   formatLocalYMD,

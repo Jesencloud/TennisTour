@@ -1,6 +1,7 @@
 const { describe, it } = require('node:test');
 const assert = require('node:assert/strict');
 const {
+  isValidDate,
   parseDateParts,
   parseLocalDate,
   formatLocalYMD,
@@ -10,6 +11,15 @@ const {
   getLocalMidnightTimestamp,
   getLocalAllDayEndTimestamp
 } = require('../utils/date.js');
+
+describe('isValidDate', () => {
+  it('validates leap years and real calendar dates', () => {
+    assert.equal(isValidDate(2028, 2, 29), true);
+    assert.equal(isValidDate(2026, 2, 29), false);
+    assert.equal(isValidDate(2026, 2, 31), false);
+    assert.equal(isValidDate(2026, 13, 1), false);
+  });
+});
 
 describe('parseDateParts', () => {
   it('parses valid YYYY-MM-DD with month 1-12', () => {
@@ -24,6 +34,8 @@ describe('parseDateParts', () => {
     assert.equal(parseDateParts('2026/07/14'), null);
     assert.equal(parseDateParts('07-14-2026'), null);
     assert.equal(parseDateParts(''), null);
+    assert.equal(parseDateParts('2026-02-31'), null);
+    assert.equal(parseDateParts('2026-13-01'), null);
   });
 });
 
@@ -79,5 +91,23 @@ describe('calendar timestamps', () => {
     assert.equal(typeof start, 'number');
     assert.equal(typeof end, 'number');
     assert.equal(end - start, 86400);
+  });
+
+  it('uses the next local midnight across DST transitions', () => {
+    const originalTimezone = process.env.TZ;
+    process.env.TZ = 'America/New_York';
+    try {
+      const duration = date => (
+        getLocalAllDayEndTimestamp(date) - getLocalMidnightTimestamp(date)
+      );
+      assert.equal(duration('2026-03-08'), 23 * 60 * 60);
+      assert.equal(duration('2026-11-01'), 25 * 60 * 60);
+    } finally {
+      if (originalTimezone === undefined) {
+        delete process.env.TZ;
+      } else {
+        process.env.TZ = originalTimezone;
+      }
+    }
   });
 });

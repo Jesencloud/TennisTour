@@ -2,6 +2,7 @@
 const { tennisEvents, eventsByDate, eventsById } = require('../../data/tennis_events.js');
 const { t } = require('../../utils/i18n.js');
 const {
+  parseDateParts,
   formatLocalDate,
   getLocalMidnightTimestamp,
   getLocalAllDayEndTimestamp
@@ -195,14 +196,13 @@ Page({
     let lang = loadStoredLang() || this.data.lang;
     if (options && isValidLang(options.lang)) {
       lang = options.lang;
-      saveStoredLang(lang);
     }
 
     const todayDate = this.getTodayDate();
     this.todayDate = todayDate;
 
     let selectedDate = todayDate;
-    if (options && options.date && /^\d{4}-\d{2}-\d{2}$/.test(options.date)) {
+    if (options && parseDateParts(options.date)) {
       selectedDate = options.date;
     }
 

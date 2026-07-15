@@ -565,7 +565,9 @@ const tennisEvents = rawEvents
 // Stable ids based on tour + name + startDate (not list position)
 assignStableEventIds(tennisEvents);
 
-const { eventDates, eventsByDate } = createEventIndexes(tennisEvents);
+const eventIndexes = createEventIndexes(tennisEvents);
+const eventDates = Object.freeze(eventIndexes.eventDates);
+const eventsByDate = eventIndexes.eventsByDate;
 const eventsById = createEventsById(tennisEvents);
 
 module.exports = {

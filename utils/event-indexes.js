@@ -62,7 +62,9 @@ function compareEventsForDate(a, b) {
   return (
     (TOUR_DISPLAY_ORDER[a.tour] || 9) - (TOUR_DISPLAY_ORDER[b.tour] || 9) ||
     getLevelPriority(a.level, 9) - getLevelPriority(b.level, 9) ||
-    String(a.id).localeCompare(String(b.id))
+    String(a.startDate || '').localeCompare(String(b.startDate || '')) ||
+    String(a.eventName || '').localeCompare(String(b.eventName || '')) ||
+    String(a.city || '').localeCompare(String(b.city || ''))
   );
 }
 

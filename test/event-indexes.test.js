@@ -88,6 +88,35 @@ describe('createEventIndexes', () => {
     const { eventDates } = createEventIndexes(events);
     assert.deepEqual(eventDates['2026-01-05'].badges, ['Mixed']);
   });
+
+  it('orders same-tour and same-level events by start date before name', () => {
+    const events = [
+      {
+        tour: 'ATP',
+        eventName: 'Zulu Open',
+        city: 'Rome',
+        level: '250',
+        startDate: '2026-04-01',
+        endDate: '2026-04-03'
+      },
+      {
+        tour: 'ATP',
+        eventName: 'Alpha Open',
+        city: 'Paris',
+        level: '250',
+        startDate: '2026-04-02',
+        endDate: '2026-04-02'
+      }
+    ];
+    assignStableEventIds(events);
+
+    const { eventsByDate } = createEventIndexes(events);
+
+    assert.deepEqual(
+      eventsByDate['2026-04-02'].map(event => event.eventName),
+      ['Zulu Open', 'Alpha Open']
+    );
+  });
 });
 
 describe('createEventsById', () => {

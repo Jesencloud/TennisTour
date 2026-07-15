@@ -27,6 +27,10 @@ function warn(message) {
   warnings.push(message);
 }
 
+function escapeRegExp(value) {
+  return String(value).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
 if (!Array.isArray(tennisEvents) || tennisEvents.length === 0) {
   fail('tennisEvents is empty');
 }
@@ -51,8 +55,9 @@ tennisEvents.forEach((event, index) => {
   if (!getLevelMeta(event.level)) warn(`${label}: unknown level "${event.level}"`);
 
   const expectedId = createStableEventId(event.tour, event.eventName, event.startDate);
-  if (event.id !== expectedId && !String(event.id).startsWith(`${expectedId}__`)) {
-    warn(`${label}: id ${event.id} does not match base stable form ${expectedId}`);
+  const suffixedIdPattern = new RegExp(`^${escapeRegExp(expectedId)}__(?:[2-9]|[1-9]\\d+)$`);
+  if (event.id !== expectedId && !suffixedIdPattern.test(String(event.id))) {
+    fail(`${label}: id ${event.id} does not match stable form ${expectedId}`);
   }
 });
 
