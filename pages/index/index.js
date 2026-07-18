@@ -364,6 +364,8 @@ Page({
     const event = this.getEventById(id);
     if (!event) return;
 
+    wx.vibrateShort({ type: 'light', fail: () => {} });
+
     const lang = this.data.lang;
     if (typeof wx.addPhoneCalendar !== 'function') {
       this.openPrompt({
@@ -451,6 +453,7 @@ Page({
   },
 
   closePrompt() {
+    wx.vibrateShort({ type: 'light', fail: () => {} });
     this.setData({
       prompt: createDefaultPrompt()
     });
